@@ -1,6 +1,6 @@
 {
   "name": "lrc-file-parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Javascript-based lrc file parser",
   "main": "./dist/lrc-parser.min.js",
   "scripts": {

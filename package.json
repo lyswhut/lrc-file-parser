@@ -1,0 +1,32 @@
+{
+  "name": "lrc-parser",
+  "version": "1.0.0",
+  "description": "Javascript-based lrc file parser",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "cross-env NODE_ENV=development webpack --config webpack.config.js",
+    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lyswhut/lrc-parser.git"
+  },
+  "keywords": [
+    "javascript"
+  ],
+  "author": "lyswhut",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/lyswhut/lrc-parser/issues"
+  },
+  "homepage": "https://github.com/lyswhut/lrc-parser#readme",
+  "devDependencies": {
+    "babel-core": "6.26.0",
+    "babel-loader": "^7.1.4",
+    "babel-preset-env": "1.6.1",
+    "babel-preset-stage-1": "^6.24.1",
+    "cross-env": "^5.2.0",
+    "webpack": "^4.17.2",
+    "webpack-cli": "^3.1.0"
+  }
+}

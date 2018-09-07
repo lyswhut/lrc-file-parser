@@ -1,7 +1,8 @@
 {
-  "name": "lrc-parser",
-  "version": "1.0.0",
+  "name": "lrc-file-parser",
+  "version": "0.1.0",
   "description": "Javascript-based lrc file parser",
+  "main": "./dist/lrc-parser.min.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "cross-env NODE_ENV=development webpack --config webpack.config.js",

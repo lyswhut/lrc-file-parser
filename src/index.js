@@ -8,12 +8,12 @@ const tagRegMap = {
 }
 
 module.exports = class Lyric {
-  constructor(options) {
-    this.lyric = options.lyric
+  constructor({ lyric = '', onPlay = function () { }, onSetLyric = function () { } } = {}) {
+    this.lyric = lyric
     this.tags = {}
     this.lines = null
-    this.handle = options.onPlay
-    this.onSetLyric = options.onSetLyric
+    this.onPlay = onPlay
+    this.onSetLyric = onSetLyric
     this.isPlay = false
     this.curLineNum = 0
     this.timer = 0
@@ -67,11 +67,11 @@ module.exports = class Lyric {
 
   _refresh() {
     this.curLineNum++
-    this.handle(this.curLineNum, this.lines[this.curLineNum].text)
+    this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
     if (this.curLineNum === this.maxLine) return this.pause()
     this.timer = setTimeout(() => {
       this._refresh()
-    }, this.lines[this.curLineNum+1].time - this.lines[this.curLineNum].time)
+    }, this.lines[this.curLineNum + 1].time - this.lines[this.curLineNum].time)
   }
 
   play(curTime = 0) {
@@ -81,11 +81,11 @@ module.exports = class Lyric {
 
     this.curLineNum = this._findCurLineNum(curTime)
 
-    this.handle(this.curLineNum, this.lines[this.curLineNum].text)
+    this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
 
     if (this.curLineNum === this.maxLine) return this.pause()
 
-    this.delay = this.lines[this.curLineNum+1].time - curTime
+    this.delay = this.lines[this.curLineNum + 1].time - curTime
     if (this.delay < 0) return
     this.timer = setTimeout(() => {
       this._refresh()

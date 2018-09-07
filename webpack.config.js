@@ -9,7 +9,8 @@ module.exports = {
     filename: 'lrc-parser.min.js',
     path: path.join(__dirname, './dist'),
     libraryTarget: 'umd',
-    library: 'Lyric'
+    library: 'Lyric',
+    umdNamedDefine: true
   },
   module: {
     rules: [

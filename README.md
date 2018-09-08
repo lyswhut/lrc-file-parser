@@ -1,11 +1,11 @@
-# lrc-parser
+# lrc-file-parser
 A lrc file parser based javascript
 
-[demo](http://www.stsky.cn/demo/lrc-parser/)
+[demo](http://www.stsky.cn/demo/lrc-file-parser/)
 
-## installation
+## Installation
 
-- use npm install
+- Use npm install
 ```bash
 # install
 npm install lrc-file-parser -S
@@ -16,9 +16,9 @@ npm install lrc-file-parser -S
 import Lyric from 'lrc-file-parser'
 ```
 
-- script link
+- Use script link
 ```html
-<script src="./lrc-parser.min.js"></script>
+<script src="./lrc-file-parser.min.js"></script>
 ```
 
 ## How to use

@@ -66,7 +66,7 @@
       dom_lyric = document.getElementById('lyric')
   var lrc = new Lyric({
     onPlay: function (line, text) {
-      console.log(line, text, lrc.isOffseted)
+      console.log(line, text)
       dom_lyric.innerHTML = text
     },
     onSetLyric: function (lines) {

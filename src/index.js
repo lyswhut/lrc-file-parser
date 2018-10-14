@@ -8,7 +8,7 @@ const tagRegMap = {
 }
 
 module.exports = class Lyric {
-  constructor({ lyric = '', onPlay = function () { }, onSetLyric = function () { } } = {}) {
+  constructor({ lyric = '', offset = 190, onPlay = function () { }, onSetLyric = function () { } } = {}) {
     this.lyric = lyric
     this.tags = {}
     this.lines = null
@@ -18,7 +18,7 @@ module.exports = class Lyric {
     this.curLineNum = 0
     this.timer = 0
     this.maxLine = 0
-    this.offset = 250
+    this.offset = offset
     this.isOffseted = false
     this._init()
   }

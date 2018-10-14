@@ -30,7 +30,8 @@ var lrc = new Lyric({
   },
   onSetLyric: function (lines) { // listening lyrics seting event
     console.log(lines) // lines is array of all lyric text
-  }
+  },
+  offset: 150 // offset time(ms), default is 190 ms
 })
 lrc.setLyric(lyricStr) // set lyric, lyricStr is lyric file text
                       // note: Setting the lyrics will automatically pause the lyrics playback

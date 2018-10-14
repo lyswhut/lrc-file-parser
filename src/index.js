@@ -18,6 +18,8 @@ module.exports = class Lyric {
     this.curLineNum = 0
     this.timer = 0
     this.maxLine = 0
+    this.offset = 250
+    this.isOffseted = false
     this._init()
   }
   _init() {
@@ -69,9 +71,14 @@ module.exports = class Lyric {
     this.curLineNum++
     this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
     if (this.curLineNum === this.maxLine) return this.pause()
+    this.delay = this.lines[this.curLineNum + 1].time - this.lines[this.curLineNum].time
+    if (!this.isOffseted && this.delay >= this.offset) {
+      this.delay -= this.offset
+      this.isOffseted = true
+    }
     this.timer = setTimeout(() => {
       this._refresh()
-    }, this.lines[this.curLineNum + 1].time - this.lines[this.curLineNum].time)
+    }, this.delay)
   }
 
   play(curTime = 0) {
@@ -86,6 +93,12 @@ module.exports = class Lyric {
     if (this.curLineNum === this.maxLine) return this.pause()
 
     this.delay = this.lines[this.curLineNum + 1].time - curTime
+    if (this.delay >= this.offset) {
+      this.delay -= this.offset
+      this.isOffseted = true
+    }
+    // console.log(this.delay);
+
     if (this.delay < 0) return
     this.timer = setTimeout(() => {
       this._refresh()
@@ -95,6 +108,7 @@ module.exports = class Lyric {
     if (!this.isPlay) return
     clearTimeout(this.timer)
     this.isPlay = false
+    this.isOffseted = false
   }
   setLyric(lyric) {
     if (this.isPlay) this.pause()

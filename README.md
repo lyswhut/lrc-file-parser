@@ -1,7 +1,7 @@
 # lrc-file-parser
 A lrc file parser based javascript
 
-[demo](http://www.stsky.cn/demo/lrc-file-parser/)
+[demo](https://lyswhut.github.io/lrc-file-parser/dist/index.html)
 
 ## Installation
 

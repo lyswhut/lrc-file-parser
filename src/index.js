@@ -7,6 +7,85 @@ const tagRegMap = {
   by: 'by'
 }
 
+// const timeoutTools = {
+//   expected: 0,
+//   interval: 0,
+//   timeoutId: null,
+//   callback: null,
+//   step() {
+//     var dt = Date.now() - this.expected // the drift (positive for overshooting)
+//     if (dt > this.interval) {
+//         // something really bad happened. Maybe the browser (tab) was inactive?
+//         // possibly special handling to avoid futile "catch up" run
+//     }
+//     // … // do what is to be done
+
+//     this.callback()
+  
+//     this.expected += this.interval
+//     this.timeoutId = setTimeout(() => {
+//       this.step()
+//     }, Math.max(0, this.interval - dt)) // take into account drift
+//   },
+//   start(callback = () => {}, interval = 1000) {
+//     this.callback = callback
+//     this.interval = interval
+//     this.expected = Date.now() + interval
+//     this.timeoutId = setTimeout(() => {
+//       this.step()
+//     } ,interval)
+//   },
+//   stop() {
+//     if (this.timeoutId == null) return 
+//     clearTimeout(this.timeoutId)
+//     this.timeoutId = null
+//   }
+// }
+
+const timeoutTools = {
+  invokeTime: 0,
+  animationFrameId: null,
+  callback: null,
+  drift: null,
+  isDrifted: false,
+
+  run() {
+    this.animationFrameId = window.requestAnimationFrame(() => {
+      if (Date.now() < this.invokeTime) return this.run()
+      
+      if (Date.now() - this.invokeTime > 100) {// 时间不对，触发矫正函数
+        this.isDrifted = true
+        // console.log('修复时间漂移，漂移时间：', Date.now() - this.invokeTime)
+        this.drift(Date.now() - this.invokeTime)
+        return
+      }
+
+      this.callback()
+      this.animationFrameId = null
+    })
+  },
+  start(callback = () => {}, drift = () => {}, timeout = 1000) {
+    this.callback = callback
+    this.drift = drift
+    this.invokeTime = Date.now() + timeout
+    this.isDrifted = false
+
+    this.run()
+  },
+  clear(drift) {
+    if (this.animationFrameId == null) return 
+    window.cancelAnimationFrame(this.animationFrameId)
+    this.animationFrameId = null
+
+    if (!this.isDrifted && drift && Date.now() - this.invokeTime > 100) {// 时间不对，触发矫正函数
+      // console.log('修复时间漂移，漂移时间：', Date.now() - this.invokeTime)
+      drift(Date.now() - this.invokeTime)
+      return
+    }
+  }
+}
+
+
 module.exports = class Lyric {
   constructor({ lyric = '', offset = 190, onPlay = function () { }, onSetLyric = function () { } } = {}) {
     this.lyric = lyric
@@ -16,7 +95,6 @@ module.exports = class Lyric {
     this.onSetLyric = onSetLyric
     this.isPlay = false
     this.curLineNum = 0
-    this.timer = 0
     this.maxLine = 0
     this.offset = offset
     this.isOffseted = false
@@ -76,8 +154,10 @@ module.exports = class Lyric {
       this.delay -= this.offset
       this.isOffseted = true
     }
-    this.timer = setTimeout(() => {
+    timeoutTools.start(() => {
       this._refresh()
+    }, driftTime => {
+      this.play(this.lines[this.curLineNum + 1].time + driftTime)
     }, this.delay)
   }
 
@@ -100,13 +180,22 @@ module.exports = class Lyric {
     // console.log(this.delay);
 
     if (this.delay < 0) return
-    this.timer = setTimeout(() => {
+    timeoutTools.start(() => {
       this._refresh()
+    }, driftTime => {
+      this.play(this.lines[this.curLineNum + 1].time + driftTime)
     }, this.delay)
   }
   pause() {
     if (!this.isPlay) return
-    clearTimeout(this.timer)
+
+    timeoutTools.clear(driftTime => {
+      if (this.curLineNum === this.maxLine) return
+      let curLineNum = this._findCurLineNum(this.lines[this.curLineNum + 1].time + driftTime)
+      this.onPlay(curLineNum, this.lines[curLineNum].text)
+    })
+
+    // clearTimeout(this.timer)
     this.isPlay = false
     this.isOffseted = false
   }

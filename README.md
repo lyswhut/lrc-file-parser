@@ -1,4 +1,5 @@
 # lrc-file-parser
+
 A lrc file parser based javascript
 
 [demo](https://lyswhut.github.io/lrc-file-parser/dist/index.html)
@@ -6,6 +7,7 @@ A lrc file parser based javascript
 ## Installation
 
 - Use npm install
+
 ```bash
 # install
 npm install lrc-file-parser -S
@@ -17,11 +19,13 @@ import Lyric from 'lrc-file-parser'
 ```
 
 - Use script link
+
 ```html
 <script src="./lrc-file-parser.min.js"></script>
 ```
 
 ## How to use
+
 ```js
 var lrc = new Lyric({
   onPlay: function (line, text) { // Listening play event
@@ -31,7 +35,7 @@ var lrc = new Lyric({
   onSetLyric: function (lines) { // listening lyrics seting event
     console.log(lines) // lines is array of all lyric text
   },
-  offset: 150 // offset time(ms), default is 190 ms
+  offset: 150 // offset time(ms), default is 150 ms
 })
 lrc.setLyric(lyricStr) // set lyric, lyricStr is lyric file text
                       // note: Setting the lyrics will automatically pause the lyrics playback
@@ -40,4 +44,5 @@ lrc.pause() // pause lyric
 ```
 
 ## LICENSE
+
 MIT

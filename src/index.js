@@ -45,13 +45,25 @@ const tagRegMap = {
 const timeoutTools = {
   invokeTime: 0,
   animationFrameId: null,
+  timeoutId: null,
   callback: null,
   drift: null,
   isDrifted: false,
+  thresholdTime: 1000,
 
   run() {
     this.animationFrameId = window.requestAnimationFrame(() => {
-      if (Date.now() < this.invokeTime) return this.run()
+      let diff = this.invokeTime - Date.now()
+      // console.log(diff)
+      if (diff > 0) {
+        if (diff < this.thresholdTime) return this.run()
+        return this.timeoutId = setTimeout(() => {
+          this.run()
+          this.timeoutId = null
+        }, diff - 800)
+      }
+
+      // if (Date.now() < this.invokeTime) return this.run()
       
       if (Date.now() - this.invokeTime > 100) {// 时间不对，触发矫正函数
         this.isDrifted = true
@@ -73,9 +85,15 @@ const timeoutTools = {
     this.run()
   },
   clear(drift) {
-    if (this.animationFrameId == null) return 
-    window.cancelAnimationFrame(this.animationFrameId)
-    this.animationFrameId = null
+    if (this.animationFrameId == null && this.timeoutId == null) return 
+    if (this.animationFrameId) {
+      window.cancelAnimationFrame(this.animationFrameId)
+      this.animationFrameId = null
+    }
+    if (this.timeoutId) {
+      window.clearTimeout(this.timeoutId)
+      this.timeoutId = null
+    }
 
     if (!this.isDrifted && drift && Date.now() - this.invokeTime > 100) {// 时间不对，触发矫正函数
       // console.log('修复时间漂移，漂移时间：', Date.now() - this.invokeTime)
@@ -87,7 +105,7 @@ const timeoutTools = {
 
 
 module.exports = class Lyric {
-  constructor({ lyric = '', offset = 190, onPlay = function () { }, onSetLyric = function () { } } = {}) {
+  constructor({ lyric = '', offset = 150, onPlay = function () { }, onSetLyric = function () { } } = {}) {
     this.lyric = lyric
     this.tags = {}
     this.lines = null

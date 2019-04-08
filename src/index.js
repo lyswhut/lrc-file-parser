@@ -53,7 +53,7 @@ const timeoutTools = {
 
   run() {
     this.animationFrameId = window.requestAnimationFrame(() => {
-      let diff = this.invokeTime - Date.now()
+      let diff = parseInt(this.invokeTime - Date.now())
       // console.log(diff)
       if (diff > 0) {
         if (diff < this.thresholdTime) return this.run()
@@ -65,18 +65,20 @@ const timeoutTools = {
 
       // if (Date.now() < this.invokeTime) return this.run()
       
-      if (Date.now() - this.invokeTime > 100) {// 时间不对，触发矫正函数
+      if (diff < -50) { // 时间不对，触发矫正函数
         this.isDrifted = true
         // console.log('修复时间漂移，漂移时间：', Date.now() - this.invokeTime)
         this.drift(Date.now() - this.invokeTime)
         return
       }
+      // console.log('diff', diff)
 
-      this.callback()
+      this.callback(diff)
       this.animationFrameId = null
     })
   },
   start(callback = () => {}, drift = () => {}, timeout = 1000) {
+    // console.log(timeout)
     this.callback = callback
     this.drift = drift
     this.invokeTime = Date.now() + timeout
@@ -141,7 +143,7 @@ module.exports = class Lyric {
         if (text) {
           const timeArr = RegExp.$1.split(':')
           if (timeArr.length < 3) timeArr.unshift(0)
-          if (timeArr[2].includes('.')) {
+          if (timeArr[2].indexOf('.') > -1) {
             timeArr.push(...timeArr[2].split('.'))
             timeArr.splice(2, 1)
           }
@@ -163,17 +165,19 @@ module.exports = class Lyric {
     return length - 1
   }
 
-  _refresh() {
+  _refresh(driftTime) {
     this.curLineNum++
     this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
     if (this.curLineNum === this.maxLine) return this.pause()
-    this.delay = this.lines[this.curLineNum + 1].time - this.lines[this.curLineNum].time
+    this.delay = this.lines[this.curLineNum + 1].time - this.lines[this.curLineNum].time + driftTime
     if (!this.isOffseted && this.delay >= this.offset) {
       this.delay -= this.offset
       this.isOffseted = true
     }
-    timeoutTools.start(() => {
-      this._refresh()
+    if (this.delay <= 0) return this._refresh(this.delay)
+
+    timeoutTools.start(driftTime => {
+      this._refresh(driftTime)
     }, driftTime => {
       this.play(this.lines[this.curLineNum + 1].time + driftTime)
     }, this.delay)
@@ -198,8 +202,8 @@ module.exports = class Lyric {
     // console.log(this.delay);
 
     if (this.delay < 0) return
-    timeoutTools.start(() => {
-      this._refresh()
+    timeoutTools.start(driftTime => {
+      this._refresh(driftTime)
     }, driftTime => {
       this.play(this.lines[this.curLineNum + 1].time + driftTime)
     }, this.delay)

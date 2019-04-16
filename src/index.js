@@ -64,11 +64,13 @@ const timeoutTools = {
       }
 
       // if (Date.now() < this.invokeTime) return this.run()
+
+      diff *= -1
       
-      if (diff < -50) { // 时间不对，触发矫正函数
+      if (diff > 50) { // 时间不对，触发矫正函数
         this.isDrifted = true
         // console.log('修复时间漂移，漂移时间：', Date.now() - this.invokeTime)
-        this.drift(Date.now() - this.invokeTime)
+        this.drift(diff)
         return
       }
       // console.log('diff', diff)

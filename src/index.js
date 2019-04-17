@@ -66,6 +66,7 @@ const timeoutTools = {
       // if (Date.now() < this.invokeTime) return this.run()
 
       diff *= -1
+      // console.log('diff', diff)
       
       if (diff > 50) { // 时间不对，触发矫正函数
         this.isDrifted = true
@@ -169,9 +170,10 @@ module.exports = class Lyric {
 
   _refresh(driftTime) {
     this.curLineNum++
+    // console.log('curLineNum time', this.lines[this.curLineNum].time)
     this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
     if (this.curLineNum === this.maxLine) return this.pause()
-    this.delay = this.lines[this.curLineNum + 1].time - this.lines[this.curLineNum].time + driftTime
+    this.delay = this.lines[this.curLineNum + 1].time - this.lines[this.curLineNum].time - driftTime
     if (!this.isOffseted && this.delay >= this.offset) {
       this.delay -= this.offset
       this.isOffseted = true

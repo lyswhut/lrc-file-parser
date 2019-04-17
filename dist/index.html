@@ -67,6 +67,7 @@
   var lrc = new Lyric({
     onPlay: function (line, text) {
       console.log(line, text)
+      // console.log(lrc.lines[lrc.curLineNum].time - lrc.offset - dom_audio.currentTime * 1000)
       dom_lyric.innerHTML = text
     },
     onSetLyric: function (lines) {
@@ -80,6 +81,9 @@
   dom_audio.onpause = function () {
     lrc.pause()
   }
+  // dom_audio.ontimeupdate = function () {
+  //   console.log(dom_audio.currentTime * 1000)
+  // }
 </script>
 
 </html>

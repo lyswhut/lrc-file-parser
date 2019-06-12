@@ -7,13 +7,15 @@ const tagRegMap = {
   by: 'by'
 }
 
+const getNow = performance.now ? performance.now.bind(performance) :  Date.now.bind(Date)
+
 // const timeoutTools = {
 //   expected: 0,
 //   interval: 0,
 //   timeoutId: null,
 //   callback: null,
 //   step() {
-//     var dt = Date.now() - this.expected // the drift (positive for overshooting)
+//     var dt = getNow() - this.expected // the drift (positive for overshooting)
 //     if (dt > this.interval) {
 //         // something really bad happened. Maybe the browser (tab) was inactive?
 //         // possibly special handling to avoid futile "catch up" run
@@ -30,7 +32,7 @@ const tagRegMap = {
 //   start(callback = () => {}, interval = 1000) {
 //     this.callback = callback
 //     this.interval = interval
-//     this.expected = Date.now() + interval
+//     this.expected = getNow() + interval
 //     this.timeoutId = setTimeout(() => {
 //       this.step()
 //     } ,interval)
@@ -53,7 +55,7 @@ const timeoutTools = {
 
   run() {
     this.animationFrameId = window.requestAnimationFrame(() => {
-      let diff = parseInt(this.invokeTime - Date.now())
+      let diff = parseInt(this.invokeTime - getNow())
       // console.log(diff)
       if (diff > 0) {
         if (diff < this.thresholdTime) return this.run()
@@ -63,14 +65,14 @@ const timeoutTools = {
         }, diff - 800)
       }
 
-      // if (Date.now() < this.invokeTime) return this.run()
+      // if (getNow() < this.invokeTime) return this.run()
 
       diff *= -1
       // console.log('diff', diff)
       
       if (diff > 50) { // 时间不对，触发矫正函数
         this.isDrifted = true
-        // console.log('修复时间漂移，漂移时间：', Date.now() - this.invokeTime)
+        // console.log('修复时间漂移，漂移时间：', getNow() - this.invokeTime)
         this.drift(diff)
         return
       }
@@ -84,7 +86,7 @@ const timeoutTools = {
     // console.log(timeout)
     this.callback = callback
     this.drift = drift
-    this.invokeTime = Date.now() + timeout
+    this.invokeTime = getNow() + timeout
     this.isDrifted = false
 
     this.run()
@@ -100,9 +102,9 @@ const timeoutTools = {
       this.timeoutId = null
     }
 
-    if (!this.isDrifted && drift && Date.now() - this.invokeTime > 100) {// 时间不对，触发矫正函数
-      // console.log('修复时间漂移，漂移时间：', Date.now() - this.invokeTime)
-      drift(Date.now() - this.invokeTime)
+    if (!this.isDrifted && drift && getNow() - this.invokeTime > 100) {// 时间不对，触发矫正函数
+      // console.log('修复时间漂移，漂移时间：', getNow() - this.invokeTime)
+      drift(getNow() - this.invokeTime)
       return
     }
   }

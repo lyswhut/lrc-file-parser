@@ -1,4 +1,4 @@
-const timeExp = /^\[([\d|:|\.]*)\]{1}/g
+const timeExp = /^\[([\d:.]*)\]{1}/g
 const tagRegMap = {
   title: 'ti',
   artist: 'ar',

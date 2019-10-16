@@ -153,7 +153,7 @@ module.exports = class Lyric {
             timeArr.splice(2, 1)
           }
           this.lines.push({
-            time: timeArr[0] * 60 * 60 * 1000 + timeArr[1] * 60 * 1000 + timeArr[2] * 1000 + (timeArr[3] || 0) * 10,
+            time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
             text
           })
         }

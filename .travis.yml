@@ -1,9 +1,13 @@
 language: node_js
-
 node_js:
-  - "10"
+  - "8"
 
 cache: npm
+
+install: npm install
+
+before_deploy: 
+  - npm run build
 
 deploy:
   provider: npm
@@ -11,7 +15,7 @@ deploy:
   api_key: "$NPM_API_KEY"
   skip_cleanup: true
   on:
-     tags: true 
+    tags: true
 
 notifications:
   email: false

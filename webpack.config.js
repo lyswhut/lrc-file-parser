@@ -1,5 +1,6 @@
 const path = require('path')
 const webpack = require('webpack')
+const TerserPlugin = require('terser-webpack-plugin')
 const packageJson = require('./package.json')
 
 module.exports = {
@@ -29,4 +30,14 @@ Github: https://github.com/lyswhut/lrc-file-parser
 License: MIT`
     )
   ],
+  optimization: {
+    minimizer: [
+      new TerserPlugin({
+        cache: true,
+        parallel: true,
+        sourceMap: false, // set to true if you want JS source maps
+        extractComments: false
+      }),
+    ],
+  }
 }

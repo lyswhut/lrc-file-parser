@@ -49,50 +49,33 @@ const timeoutTools = {
   animationFrameId: null,
   timeoutId: null,
   callback: null,
-  drift: null,
-  isDrifted: false,
-  thresholdTime: 1000,
+  thresholdTime: 200,
 
   run() {
     this.animationFrameId = window.requestAnimationFrame(() => {
-      let diff = parseInt(this.invokeTime - getNow())
-      // console.log(diff)
+      this.animationFrameId = null
+      let diff = this.invokeTime - getNow()
+      // console.log('diff', diff)
       if (diff > 0) {
         if (diff < this.thresholdTime) return this.run()
         return this.timeoutId = setTimeout(() => {
           this.run()
           this.timeoutId = null
-        }, diff - 800)
+        }, diff - this.thresholdTime)
       }
-
-      // if (getNow() < this.invokeTime) return this.run()
-
-      diff *= -1
-      // console.log('diff', diff)
       
-      if (diff > 50) { // 时间不对，触发矫正函数
-        this.isDrifted = true
-        // console.log('修复时间漂移，漂移时间：', getNow() - this.invokeTime)
-        this.drift(diff)
-        return
-      }
       // console.log('diff', diff)
-
       this.callback(diff)
-      this.animationFrameId = null
     })
   },
-  start(callback = () => {}, drift = () => {}, timeout = 1000) {
+  start(callback = () => {}, timeout = 0) {
     // console.log(timeout)
     this.callback = callback
-    this.drift = drift
     this.invokeTime = getNow() + timeout
-    this.isDrifted = false
 
     this.run()
   },
-  clear(drift) {
-    if (this.animationFrameId == null && this.timeoutId == null) return 
+  clear() {
     if (this.animationFrameId) {
       window.cancelAnimationFrame(this.animationFrameId)
       this.animationFrameId = null
@@ -100,12 +83,6 @@ const timeoutTools = {
     if (this.timeoutId) {
       window.clearTimeout(this.timeoutId)
       this.timeoutId = null
-    }
-
-    if (!this.isDrifted && drift && getNow() - this.invokeTime > 100) {// 时间不对，触发矫正函数
-      // console.log('修复时间漂移，漂移时间：', getNow() - this.invokeTime)
-      drift(getNow() - this.invokeTime)
-      return
     }
   }
 }
@@ -123,6 +100,7 @@ module.exports = class Lyric {
     this.maxLine = 0
     this.offset = offset
     this.isOffseted = false
+    this._nextPerformanceTime = 0
     this._init()
   }
   _init() {
@@ -170,23 +148,30 @@ module.exports = class Lyric {
     return length - 1
   }
 
-  _refresh(driftTime) {
+  _refresh() {
     this.curLineNum++
     // console.log('curLineNum time', this.lines[this.curLineNum].time)
-    this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
-    if (this.curLineNum === this.maxLine) return this.pause()
-    this.delay = this.lines[this.curLineNum + 1].time - this.lines[this.curLineNum].time - driftTime
+    let curLine = this.lines[this.curLineNum]
+    let nextLine = this.lines[this.curLineNum + 1]
+    if (this.curLineNum === this.maxLine) return this.handleMaxLine()
+    const driftTime = getNow() - this._nextPerformanceTime
+    // console.log('driftTime', driftTime)
+    this.delay = nextLine.time - curLine.time
+    this._nextPerformanceTime += this.delay
+    this.delay -= driftTime
+    if (this.delay <= 0) return this._refresh()
+    
     if (!this.isOffseted && this.delay >= this.offset) {
+      this._nextPerformanceTime -= this.offset
       this.delay -= this.offset
       this.isOffseted = true
     }
-    if (this.delay <= 0) return this._refresh(this.delay)
 
-    timeoutTools.start(driftTime => {
-      this._refresh(driftTime)
-    }, driftTime => {
-      this.play(this.lines[this.curLineNum + 1].time + driftTime)
+    timeoutTools.start(() => {
+      this._refresh()
     }, this.delay)
+
+    this.onPlay(this.curLineNum, curLine.text)
   }
 
   play(curTime = 0) {
@@ -196,36 +181,37 @@ module.exports = class Lyric {
 
     this.curLineNum = this._findCurLineNum(curTime)
 
-    this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
-
-    if (this.curLineNum === this.maxLine) return this.pause()
-
+    if (this.curLineNum === this.maxLine) return this.handleMaxLine()
+    
     this.delay = this.lines[this.curLineNum + 1].time - curTime
+    this._nextPerformanceTime = getNow() + this.delay
     if (this.delay >= this.offset) {
+      this._nextPerformanceTime -= this.offset
       this.delay -= this.offset
       this.isOffseted = true
     }
     // console.log(this.delay);
-
-    if (this.delay < 0) return
+    
     timeoutTools.start(driftTime => {
       this._refresh(driftTime)
-    }, driftTime => {
-      this.play(this.lines[this.curLineNum + 1].time + driftTime)
     }, this.delay)
+  
+    this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
   }
+
+  handleMaxLine() {
+    this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
+    this.pause()
+  }
+
   pause() {
     if (!this.isPlay) return
-
-    timeoutTools.clear(driftTime => {
-      if (this.curLineNum === this.maxLine) return
-      let curLineNum = this._findCurLineNum(this.lines[this.curLineNum + 1].time + driftTime)
-      this.onPlay(curLineNum, this.lines[curLineNum].text)
-    })
-
-    // clearTimeout(this.timer)
     this.isPlay = false
     this.isOffseted = false
+    timeoutTools.clear()
+    if (this.curLineNum === this.maxLine) return
+    const curLineNum = this._findCurLineNum(this.lines[this.curLineNum + 1].time + (getNow() - this._nextPerformanceTime))
+    if (this.curLineNum !== curLineNum) this.onPlay(curLineNum, this.lines[curLineNum].text)
   }
   setLyric(lyric) {
     if (this.isPlay) this.pause()

@@ -59,8 +59,8 @@ const timeoutTools = {
       if (diff > 0) {
         if (diff < this.thresholdTime) return this.run()
         return this.timeoutId = setTimeout(() => {
-          this.run()
           this.timeoutId = null
+          this.run()
         }, diff - this.thresholdTime)
       }
       
@@ -148,12 +148,17 @@ module.exports = class Lyric {
     return length - 1
   }
 
+  _handleMaxLine() {
+    this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
+    this.pause()
+  }
+
   _refresh() {
     this.curLineNum++
     // console.log('curLineNum time', this.lines[this.curLineNum].time)
     let curLine = this.lines[this.curLineNum]
     let nextLine = this.lines[this.curLineNum + 1]
-    if (this.curLineNum === this.maxLine) return this.handleMaxLine()
+    if (this.curLineNum === this.maxLine) return this._handleMaxLine()
     const driftTime = getNow() - this._nextPerformanceTime
     // console.log('driftTime', driftTime)
     this.delay = nextLine.time - curLine.time
@@ -181,7 +186,7 @@ module.exports = class Lyric {
 
     this.curLineNum = this._findCurLineNum(curTime)
 
-    if (this.curLineNum === this.maxLine) return this.handleMaxLine()
+    if (this.curLineNum === this.maxLine) return this._handleMaxLine()
     
     this.delay = this.lines[this.curLineNum + 1].time - curTime
     this._nextPerformanceTime = getNow() + this.delay
@@ -197,11 +202,6 @@ module.exports = class Lyric {
     }, this.delay)
   
     this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
-  }
-
-  handleMaxLine() {
-    this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
-    this.pause()
   }
 
   pause() {

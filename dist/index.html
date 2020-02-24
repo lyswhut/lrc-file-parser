@@ -49,7 +49,7 @@
 
 <body>
   <main>
-    <audio id="audio" src="https://toside01-1251838060.cos.ap-guangzhou.myqcloud.com/lrc-file-parser%2Ftest.mp3" autoplay controls></audio>
+    <audio id="audio" autoplay controls></audio>
     <div id="lyric"></div>
     <div id="bg"></div>
   </main>
@@ -81,6 +81,8 @@
   dom_audio.onpause = function () {
     lrc.pause()
   }
+  
+  dom_audio.src = 'https://toside01-1251838060.cos.ap-guangzhou.myqcloud.com/lrc-file-parser%2Ftest.mp3'
   // dom_audio.ontimeupdate = function () {
   //   console.log(dom_audio.currentTime * 1000)
   // }

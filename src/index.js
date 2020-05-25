@@ -104,7 +104,7 @@ module.exports = class Lyric {
     this._init()
   }
   _init() {
-    if (!this.lyric) return
+    if (this.lyric == null) this.lyric = ''
     this._initTag()
     this._initLines()
     this.onSetLyric(this.lines)

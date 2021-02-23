@@ -7,7 +7,7 @@ const tagRegMap = {
   by: 'by'
 }
 
-const getNow = performance.now ? performance.now.bind(performance) :  Date.now.bind(Date)
+const getNow = typeof performance == 'object' && performance.now ? performance.now.bind(performance) :  Date.now.bind(Date)
 
 // const timeoutTools = {
 //   expected: 0,
@@ -100,7 +100,8 @@ module.exports = class Lyric {
     this.maxLine = 0
     this.offset = offset
     this.isOffseted = false
-    this._nextPerformanceTime = 0
+    this._performanceTime = 0
+    this._performanceOffsetTime = 0
     this._init()
   }
   _init() {
@@ -142,6 +143,9 @@ module.exports = class Lyric {
     })
     this.maxLine = this.lines.length - 1
   }
+  _currentTime() {
+    return getNow() - this._performanceTime + this._performanceOffsetTime
+  }
   _findCurLineNum(curTime) {
     const length = this.lines.length
     for (let index = 0; index < length; index++) if (curTime <= this.lines[index].time) return index === 0 ? 0 : index - 1
@@ -158,25 +162,28 @@ module.exports = class Lyric {
     // console.log('curLineNum time', this.lines[this.curLineNum].time)
     let curLine = this.lines[this.curLineNum]
     let nextLine = this.lines[this.curLineNum + 1]
-    if (this.curLineNum === this.maxLine) return this._handleMaxLine()
-    const driftTime = getNow() - this._nextPerformanceTime
-    // console.log('driftTime', driftTime)
-    this.delay = nextLine.time - curLine.time
-    this._nextPerformanceTime += this.delay
-    this.delay -= driftTime
-    if (this.delay <= 0) return this._refresh()
-    
-    if (!this.isOffseted && this.delay >= this.offset) {
-      this._nextPerformanceTime -= this.offset
-      this.delay -= this.offset
-      this.isOffseted = true
+    const currentTime = this._currentTime()
+    const driftTime = currentTime - curLine.time
+
+    if (driftTime >= 0 || this.curLineNum === 0) {
+      if (this.curLineNum === this.maxLine) return this._handleMaxLine()
+      this.delay = nextLine.time - curLine.time - driftTime
+      if (this.delay > 0) {
+        if (!this.isOffseted && this.delay >= this.offset) {
+          this._performanceOffsetTime += this.offset
+          this.delay -= this.offset
+          this.isOffseted = true
+        }
+        timeoutTools.start(() => {
+          this._refresh()
+        }, this.delay)
+        this.onPlay(this.curLineNum, curLine.text)
+        return
+      }
     }
 
-    timeoutTools.start(() => {
-      this._refresh()
-    }, this.delay)
-
-    this.onPlay(this.curLineNum, curLine.text)
+    this.curLineNum = this._findCurLineNum(currentTime) - 1
+    this._refresh()
   }
 
   play(curTime = 0) {
@@ -184,24 +191,16 @@ module.exports = class Lyric {
     this.pause()
     this.isPlay = true
 
-    this.curLineNum = this._findCurLineNum(curTime)
-
-    if (this.curLineNum === this.maxLine) return this._handleMaxLine()
-    
-    this.delay = this.lines[this.curLineNum + 1].time - curTime
-    this._nextPerformanceTime = getNow() + this.delay
-    if (this.delay >= this.offset) {
-      this._nextPerformanceTime -= this.offset
-      this.delay -= this.offset
-      this.isOffseted = true
+    this._performanceOffsetTime = 0
+    this._performanceTime = getNow() - curTime
+    if (this._performanceTime < 0) {
+      this._performanceOffsetTime = -this._performanceTime
+      this._performanceTime = 0
     }
-    // console.log(this.delay);
-    
-    timeoutTools.start(driftTime => {
-      this._refresh(driftTime)
-    }, this.delay)
-  
-    this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
+
+    this.curLineNum = this._findCurLineNum(curTime) - 1
+
+    this._refresh()
   }
 
   pause() {
@@ -210,8 +209,11 @@ module.exports = class Lyric {
     this.isOffseted = false
     timeoutTools.clear()
     if (this.curLineNum === this.maxLine) return
-    const curLineNum = this._findCurLineNum(this.lines[this.curLineNum + 1].time + (getNow() - this._nextPerformanceTime))
-    if (this.curLineNum !== curLineNum) this.onPlay(curLineNum, this.lines[curLineNum].text)
+    const curLineNum = this._findCurLineNum(this._currentTime())
+    if (this.curLineNum !== curLineNum) {
+      this.curLineNum = curLineNum
+      this.onPlay(curLineNum, this.lines[curLineNum].text)
+    }
   }
   setLyric(lyric) {
     if (this.isPlay) this.pause()

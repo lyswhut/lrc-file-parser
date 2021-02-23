@@ -33,9 +33,6 @@ License: MIT`
   optimization: {
     minimizer: [
       new TerserPlugin({
-        cache: true,
-        parallel: true,
-        sourceMap: false, // set to true if you want JS source maps
         extractComments: false
       }),
     ],

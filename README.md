@@ -37,7 +37,7 @@ var lrc = new Lyric({
   },
   offset: 150 // offset time(ms), default is 150 ms
 })
-lrc.setLyric(lyricStr) // set lyric, lyricStr is lyric file text
+lrc.setLyric(lyricStr, lyricTranslationStr) // set lyric, lyricStr is lyric file text, translationLyricStr is lyric translation file text (optional)
                       // note: Setting the lyrics will automatically pause the lyrics playback
 lrc.play(30000) // play lyric, 30000 is curent play time, unit: ms
 lrc.pause() // pause lyric

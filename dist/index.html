@@ -74,7 +74,7 @@
       console.log(lines)
     }
   })
-  lrc.setLyric(b64DecodeUnicode(encodeLrc))
+  lrc.setLyric(b64DecodeUnicode(encodeLrc), b64DecodeUnicode(encodeLrc))
   dom_audio.onplay = function () {
     lrc.play(dom_audio.currentTime * 1000)
   }

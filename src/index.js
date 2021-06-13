@@ -89,8 +89,9 @@ const timeoutTools = {
 
 
 module.exports = class Lyric {
-  constructor({ lyric = '', offset = 150, onPlay = function () { }, onSetLyric = function () { } } = {}) {
+  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function () { }, onSetLyric = function () { } } = {}) {
     this.lyric = lyric
+    this.translationLyric = translationLyric
     this.tags = {}
     this.lines = null
     this.onPlay = onPlay
@@ -106,6 +107,7 @@ module.exports = class Lyric {
   }
   _init() {
     if (this.lyric == null) this.lyric = ''
+    if (this.translationLyric == null) this.translationLyric = ''
     this._initTag()
     this._initLines()
     this.onSetLyric(this.lines)
@@ -118,31 +120,51 @@ module.exports = class Lyric {
   }
   _initLines() {
     this.lines = []
+    this.translationLines = []
     const lines = this.lyric.split('\n')
+    const linesMap = {}
+    // const translationLines = this.translationLyric.split('\n')
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i].trim()
       let result = timeExp.exec(line)
       if (result) {
         const text = line.replace(timeExp, '').trim()
         if (text) {
-          const timeArr = RegExp.$1.split(':')
+          const timeStr = RegExp.$1
+          const timeArr = timeStr.split(':')
           if (timeArr.length < 3) timeArr.unshift(0)
           if (timeArr[2].indexOf('.') > -1) {
             timeArr.push(...timeArr[2].split('.'))
             timeArr.splice(2, 1)
           }
-          this.lines.push({
+          linesMap[timeStr] = {
             time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
-            text
-          })
+            text,
+          }
         }
       }
     }
+
+    const translationLines = this.translationLyric.split('\n')
+    for (let i = 0; i < translationLines.length; i++) {
+      const line = translationLines[i].trim()
+      let result = timeExp.exec(line)
+      if (result) {
+        const text = line.replace(timeExp, '').trim()
+        if (text) {
+          const timeStr = RegExp.$1
+          const targetLine = linesMap[timeStr]
+          if (targetLine) targetLine.translation = text
+        }
+      }
+    }
+    this.lines = Object.values(linesMap)
     this.lines.sort((a, b) => {
       return a.time - b.time
     })
     this.maxLine = this.lines.length - 1
   }
+
   _currentTime() {
     return getNow() - this._performanceTime + this._performanceOffsetTime
   }
@@ -177,7 +199,7 @@ module.exports = class Lyric {
         timeoutTools.start(() => {
           this._refresh()
         }, this.delay)
-        this.onPlay(this.curLineNum, curLine.text)
+        this.onPlay(this.curLineNum, curLine.text, currentTime)
         return
       }
     }
@@ -215,9 +237,12 @@ module.exports = class Lyric {
       this.onPlay(curLineNum, this.lines[curLineNum].text)
     }
   }
-  setLyric(lyric) {
+
+  setLyric(lyric, translationLyric) {
+    // console.log(translationLyric)
     if (this.isPlay) this.pause()
     this.lyric = lyric
+    this.translationLyric = translationLyric
     this._init()
   }
 }

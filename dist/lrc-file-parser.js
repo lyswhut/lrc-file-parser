@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v1.1.1
+ * lrc-file-parser.js v1.1.2
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT

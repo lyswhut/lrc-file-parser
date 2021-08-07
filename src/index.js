@@ -120,7 +120,7 @@ module.exports = class Lyric {
   }
   _initLines() {
     this.lines = []
-    this.translationLines = []
+    // this.translationLines = []
     const lines = this.lyric.split('\n')
     const linesMap = {}
     // const translationLines = this.translationLyric.split('\n')
@@ -137,6 +137,7 @@ module.exports = class Lyric {
             timeArr.push(...timeArr[2].split('.'))
             timeArr.splice(2, 1)
           }
+          new Date().getMilliseconds
           linesMap[timeStr] = {
             time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
             text,
@@ -182,13 +183,14 @@ module.exports = class Lyric {
   _refresh() {
     this.curLineNum++
     // console.log('curLineNum time', this.lines[this.curLineNum].time)
+    if (this.curLineNum >= this.maxLine) return this._handleMaxLine()
+
     let curLine = this.lines[this.curLineNum]
     let nextLine = this.lines[this.curLineNum + 1]
     const currentTime = this._currentTime()
     const driftTime = currentTime - curLine.time
 
     if (driftTime >= 0 || this.curLineNum === 0) {
-      if (this.curLineNum === this.maxLine) return this._handleMaxLine()
       this.delay = nextLine.time - curLine.time - driftTime
       if (this.delay > 0) {
         if (!this.isOffseted && this.delay >= this.offset) {
@@ -199,7 +201,7 @@ module.exports = class Lyric {
         timeoutTools.start(() => {
           this._refresh()
         }, this.delay)
-        this.onPlay(this.curLineNum, curLine.text, currentTime)
+        this.onPlay(this.curLineNum, curLine.text)
         return
       }
     }

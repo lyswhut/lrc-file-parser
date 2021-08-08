@@ -137,7 +137,7 @@ module.exports = class Lyric {
             timeArr.push(...timeArr[2].split('.'))
             timeArr.splice(2, 1)
           }
-          new Date().getMilliseconds
+
           linesMap[timeStr] = {
             time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
             text,

@@ -15,5 +15,6 @@
     "prefer-const": "off",
     "no-labels": "off",
     "node/no-callback-literal": "off"
-  }
+  },
+  "ignorePatterns": ["dist/*.js"]
 }

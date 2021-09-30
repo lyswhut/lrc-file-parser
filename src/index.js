@@ -121,7 +121,7 @@ module.exports = class Lyric {
   _initLines() {
     this.lines = []
     // this.translationLines = []
-    const lines = this.lyric.split('\n')
+    const lines = this.lyric.split(/\r\n|\n|\r/)
     const linesMap = {}
     // const translationLines = this.translationLyric.split('\n')
     for (let i = 0; i < lines.length; i++) {

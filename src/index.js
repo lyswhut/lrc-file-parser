@@ -7,7 +7,7 @@ const tagRegMap = {
   by: 'by'
 }
 
-const getNow = typeof performance == 'object' && performance.now ? performance.now.bind(performance) :  Date.now.bind(Date)
+const getNow = typeof performance == 'object' && performance.now ? performance.now.bind(performance) : Date.now.bind(Date)
 
 // const timeoutTools = {
 //   expected: 0,
@@ -23,7 +23,7 @@ const getNow = typeof performance == 'object' && performance.now ? performance.n
 //     // … // do what is to be done
 
 //     this.callback()
-  
+
 //     this.expected += this.interval
 //     this.timeoutId = setTimeout(() => {
 //       this.step()
@@ -63,12 +63,12 @@ const timeoutTools = {
           this.run()
         }, diff - this.thresholdTime)
       }
-      
+
       // console.log('diff', diff)
       this.callback(diff)
     })
   },
-  start(callback = () => {}, timeout = 0) {
+  start(callback = () => { }, timeout = 0) {
     // console.log(timeout)
     this.callback = callback
     this.invokeTime = getNow() + timeout
@@ -88,7 +88,7 @@ const timeoutTools = {
 }
 
 
-module.exports = class Lyric {
+class Lyric {
   constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function () { }, onSetLyric = function () { } } = {}) {
     this.lyric = lyric
     this.translationLyric = translationLyric
@@ -123,12 +123,13 @@ module.exports = class Lyric {
     // this.translationLines = []
     const lines = this.lyric.split(/\r\n|\n|\r/)
     const linesMap = {}
+    const length = lines.length
     // const translationLines = this.translationLyric.split('\n')
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim()
+    for (let i = 0; i < length; i++) {
+      const line = lines[i]
       let result = timeExp.exec(line)
       if (result) {
-        const text = line.replace(timeExp, '').trim()
+        const text = line.replace(timeExp, '')
         if (text) {
           const timeStr = RegExp.$1
           const timeArr = timeStr.split(':')
@@ -247,4 +248,16 @@ module.exports = class Lyric {
     this.translationLyric = translationLyric
     this._init()
   }
+}
+
+// common js
+if (typeof module === 'object' && typeof module.exports === 'object') {
+  module.exports = Lyric;
+}
+
+// amd
+if (typeof define === 'function' && define.amd) {
+  define('port', [], function () {
+    return Lyric;
+  });
 }

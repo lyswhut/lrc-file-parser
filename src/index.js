@@ -89,13 +89,14 @@ const timeoutTools = {
 
 
 class Lyric {
-  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function () { }, onSetLyric = function () { } } = {}) {
+  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function () { }, onSetLyric = function () { }, isRemoveBlankLine = true } = {}) {
     this.lyric = lyric
     this.translationLyric = translationLyric
     this.tags = {}
     this.lines = null
     this.onPlay = onPlay
     this.onSetLyric = onSetLyric
+    this.isRemoveBlankLine = isRemoveBlankLine
     this.isPlay = false
     this.curLineNum = 0
     this.maxLine = 0
@@ -126,10 +127,10 @@ class Lyric {
     const length = lines.length
     // const translationLines = this.translationLyric.split('\n')
     for (let i = 0; i < length; i++) {
-      const line = lines[i]
+      const line = this.isRemoveBlankLine ? lines[i].trim() : lines[i]
       let result = timeExp.exec(line)
       if (result) {
-        const text = line.replace(timeExp, '')
+        const text = this.isRemoveBlankLine ? line.replace(timeExp, '').trim() : line.replace(timeExp, '')
         if (text) {
           const timeStr = RegExp.$1
           const timeArr = timeStr.split(':')
@@ -257,7 +258,7 @@ if (typeof module === 'object' && typeof module.exports === 'object') {
 
 // amd
 if (typeof define === 'function' && define.amd) {
-  define('port', [], function () {
+  define('Lyric', [], function () {
     return Lyric;
   });
 }

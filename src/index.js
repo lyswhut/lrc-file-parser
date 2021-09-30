@@ -4,10 +4,11 @@ const tagRegMap = {
   artist: 'ar',
   album: 'al',
   offset: 'offset',
-  by: 'by'
+  by: 'by',
 }
 
-const getNow = typeof performance == 'object' && performance.now ? performance.now.bind(performance) :  Date.now.bind(Date)
+// eslint-disable-next-line no-undef
+const getNow = typeof performance == 'object' && performance.now ? performance.now.bind(performance) : Date.now.bind(Date)
 
 // const timeoutTools = {
 //   expected: 0,
@@ -23,7 +24,7 @@ const getNow = typeof performance == 'object' && performance.now ? performance.n
 //     // … // do what is to be done
 
 //     this.callback()
-  
+
 //     this.expected += this.interval
 //     this.timeoutId = setTimeout(() => {
 //       this.step()
@@ -38,7 +39,7 @@ const getNow = typeof performance == 'object' && performance.now ? performance.n
 //     } ,interval)
 //   },
 //   stop() {
-//     if (this.timeoutId == null) return 
+//     if (this.timeoutId == null) return
 //     clearTimeout(this.timeoutId)
 //     this.timeoutId = null
 //   }
@@ -63,7 +64,7 @@ const timeoutTools = {
           this.run()
         }, diff - this.thresholdTime)
       }
-      
+
       // console.log('diff', diff)
       this.callback(diff)
     })
@@ -84,12 +85,12 @@ const timeoutTools = {
       window.clearTimeout(this.timeoutId)
       this.timeoutId = null
     }
-  }
+  },
 }
 
 
 module.exports = class Lyric {
-  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function () { }, onSetLyric = function () { } } = {}) {
+  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function() { }, onSetLyric = function() { } } = {}) {
     this.lyric = lyric
     this.translationLyric = translationLyric
     this.tags = {}
@@ -105,6 +106,7 @@ module.exports = class Lyric {
     this._performanceOffsetTime = 0
     this._init()
   }
+
   _init() {
     if (this.lyric == null) this.lyric = ''
     if (this.translationLyric == null) this.translationLyric = ''
@@ -112,12 +114,14 @@ module.exports = class Lyric {
     this._initLines()
     this.onSetLyric(this.lines)
   }
+
   _initTag() {
     for (let tag in tagRegMap) {
       const matches = this.lyric.match(new RegExp(`\\[${tagRegMap[tag]}:([^\\]]*)]`, 'i'))
-      this.tags[tag] = matches && matches[1] || ''
+      this.tags[tag] = (matches && matches[1]) || ''
     }
   }
+
   _initLines() {
     this.lines = []
     // this.translationLines = []
@@ -169,6 +173,7 @@ module.exports = class Lyric {
   _currentTime() {
     return getNow() - this._performanceTime + this._performanceOffsetTime
   }
+
   _findCurLineNum(curTime) {
     const length = this.lines.length
     for (let index = 0; index < length; index++) if (curTime <= this.lines[index].time) return index === 0 ? 0 : index - 1

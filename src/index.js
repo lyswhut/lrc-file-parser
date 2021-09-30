@@ -90,7 +90,7 @@ const timeoutTools = {
 
 
 module.exports = class Lyric {
-  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function() { }, onSetLyric = function() { } } = {}) {
+  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function() { }, onSetLyric = function() { }, isRemoveBlankLine = true } = {}) {
     this.lyric = lyric
     this.translationLyric = translationLyric
     this.tags = {}
@@ -104,6 +104,7 @@ module.exports = class Lyric {
     this.isOffseted = false
     this._performanceTime = 0
     this._performanceOffsetTime = 0
+    this.isRemoveBlankLine = isRemoveBlankLine
     this._init()
   }
 
@@ -133,7 +134,7 @@ module.exports = class Lyric {
       let result = timeExp.exec(line)
       if (result) {
         const text = line.replace(timeExp, '').trim()
-        if (text) {
+        if (text || !this.isRemoveBlankLine) {
           const timeStr = RegExp.$1
           const timeArr = timeStr.split(':')
           if (timeArr.length < 3) timeArr.unshift(0)

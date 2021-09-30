@@ -36,6 +36,7 @@ var lrc = new Lyric({
     console.log(lines) // lines is array of all lyric text
   },
   offset: 150 // offset time(ms), default is 150 ms
+  isRemoveBlankLine: true // is remove blank line, default is true
 })
 lrc.setLyric(lyricStr, lyricTranslationStr) // set lyric, lyricStr is lyric file text, translationLyricStr is lyric translation file text (optional)
                       // note: Setting the lyrics will automatically pause the lyrics playback

@@ -69,7 +69,7 @@ const timeoutTools = {
       this.callback(diff)
     })
   },
-  start(callback = () => {}, timeout = 0) {
+  start(callback = () => { }, timeout = 0) {
     // console.log(timeout)
     this.callback = callback
     this.invokeTime = getNow() + timeout
@@ -90,7 +90,7 @@ const timeoutTools = {
 
 
 module.exports = class Lyric {
-  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function() { }, onSetLyric = function() { }, isRemoveBlankLine = true } = {}) {
+  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function () { }, onSetLyric = function () { }, isRemoveBlankLine = true } = {}) {
     this.lyric = lyric
     this.translationLyric = translationLyric
     this.tags = {}
@@ -129,7 +129,8 @@ module.exports = class Lyric {
     const lines = this.lyric.split(/\r\n|\n|\r/)
     const linesMap = {}
     // const translationLines = this.translationLyric.split('\n')
-    for (let i = 0; i < lines.length; i++) {
+    const length = lines.length
+    for (let i = 0; i < length; i++) {
       const line = lines[i].trim()
       let result = timeExp.exec(line)
       if (result) {
@@ -151,13 +152,14 @@ module.exports = class Lyric {
       }
     }
 
-    const translationLines = this.translationLyric.split('\n')
-    for (let i = 0; i < translationLines.length; i++) {
+    const translationLines = this.translationLyric.split(/\r\n|\n|\r/)
+    const translationLineLength = translationLines.length
+    for (let i = 0; i < translationLineLength; i++) {
       const line = translationLines[i].trim()
       let result = timeExp.exec(line)
       if (result) {
         const text = line.replace(timeExp, '').trim()
-        if (text) {
+        if (text || !this.isRemoveBlankLine) {
           const timeStr = RegExp.$1
           const targetLine = linesMap[timeStr]
           if (targetLine) targetLine.translation = text

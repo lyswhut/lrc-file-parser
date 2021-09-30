@@ -150,10 +150,10 @@ class Lyric {
 
     const translationLines = this.translationLyric.split('\n')
     for (let i = 0; i < translationLines.length; i++) {
-      const line = translationLines[i].trim()
+      const line = this.isRemoveBlankLine ? translationLines[i].trim() : translationLines[i]
       let result = timeExp.exec(line)
       if (result) {
-        const text = line.replace(timeExp, '').trim()
+        const text = this.isRemoveBlankLine ? line.replace(timeExp, '').trim() : line.replace(timeExp, '')
         if (text) {
           const timeStr = RegExp.$1
           const targetLine = linesMap[timeStr]

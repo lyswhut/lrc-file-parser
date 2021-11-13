@@ -90,7 +90,7 @@ const timeoutTools = {
 
 
 module.exports = class Lyric {
-  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function () { }, onSetLyric = function () { }, isRemoveBlankLine = true } = {}) {
+  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function() { }, onSetLyric = function() { }, isRemoveBlankLine = true } = {}) {
     this.lyric = lyric
     this.translationLyric = translationLyric
     this.tags = {}

@@ -1,7 +1,397 @@
 /*!
- * lrc-file-parser.js v1.2.3
+ * lrc-file-parser.js v1.2.4
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
  */
-!function(i,t){"object"==typeof exports&&"object"==typeof module?module.exports=t():"function"==typeof define&&define.amd?define("Lyric",[],t):"object"==typeof exports?exports.Lyric=t():i.Lyric=t()}(self,(function(){return i={579:i=>{function t(i){return function(i){if(Array.isArray(i))return e(i)}(i)||function(i){if("undefined"!=typeof Symbol&&null!=i[Symbol.iterator]||null!=i["@@iterator"])return Array.from(i)}(i)||function(i,t){if(i){if("string"==typeof i)return e(i,t);var n=Object.prototype.toString.call(i).slice(8,-1);return"Object"===n&&i.constructor&&(n=i.constructor.name),"Map"===n||"Set"===n?Array.from(i):"Arguments"===n||/^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)?e(i,t):void 0}}(i)||function(){throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.")}()}function e(i,t){(null==t||t>i.length)&&(t=i.length);for(var e=0,n=new Array(t);e<t;e++)n[e]=i[e];return n}function n(i,t){if(!(i instanceof t))throw new TypeError("Cannot call a class as a function")}function r(i,t){for(var e=0;e<t.length;e++){var n=t[e];n.enumerable=n.enumerable||!1,n.configurable=!0,"value"in n&&(n.writable=!0),Object.defineProperty(i,n.key,n)}}function s(i){return(s="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(i){return typeof i}:function(i){return i&&"function"==typeof Symbol&&i.constructor===Symbol&&i!==Symbol.prototype?"symbol":typeof i})(i)}var o=/^\[([\d:.]*)\]{1}/g,a={title:"ti",artist:"ar",album:"al",offset:"offset",by:"by"},u="object"==("undefined"==typeof performance?"undefined":s(performance))&&performance.now?performance.now.bind(performance):Date.now.bind(Date),l={invokeTime:0,animationFrameId:null,timeoutId:null,callback:null,thresholdTime:200,run:function(){var i=this;this.animationFrameId=window.requestAnimationFrame((function(){i.animationFrameId=null;var t=i.invokeTime-u();if(t>0)return t<i.thresholdTime?i.run():i.timeoutId=setTimeout((function(){i.timeoutId=null,i.run()}),t-i.thresholdTime);i.callback(t)}))},start:function(){var i=arguments.length>0&&void 0!==arguments[0]?arguments[0]:function(){},t=arguments.length>1&&void 0!==arguments[1]?arguments[1]:0;this.callback=i,this.invokeTime=u()+t,this.run()},clear:function(){this.animationFrameId&&(window.cancelAnimationFrame(this.animationFrameId),this.animationFrameId=null),this.timeoutId&&(window.clearTimeout(this.timeoutId),this.timeoutId=null)}};i.exports=function(){function i(){var t=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{},e=t.lyric,r=void 0===e?"":e,s=t.translationLyric,o=void 0===s?"":s,a=t.offset,u=void 0===a?150:a,l=t.onPlay,f=void 0===l?function(){}:l,h=t.onSetLyric,c=void 0===h?function(){}:h,m=t.isRemoveBlankLine,y=void 0===m||m;n(this,i),this.lyric=r,this.translationLyric=o,this.tags={},this.lines=null,this.onPlay=f,this.onSetLyric=c,this.isPlay=!1,this.curLineNum=0,this.maxLine=0,this.offset=u,this.isOffseted=!1,this._performanceTime=0,this._performanceOffsetTime=0,this.isRemoveBlankLine=y,this._init()}var e,s,f;return e=i,(s=[{key:"_init",value:function(){null==this.lyric&&(this.lyric=""),null==this.translationLyric&&(this.translationLyric=""),this._initTag(),this._initLines(),this.onSetLyric(this.lines)}},{key:"_initTag",value:function(){for(var i in a){var t=this.lyric.match(new RegExp("\\[".concat(a[i],":([^\\]]*)]"),"i"));this.tags[i]=t&&t[1]||""}}},{key:"_initLines",value:function(){this.lines=[];for(var i=this.lyric.split(/\r\n|\n|\r/),e={},n=i.length,r=0;r<n;r++){var s=i[r].trim();if(o.exec(s)){var a=s.replace(o,"").trim();if(a||!this.isRemoveBlankLine){var u=RegExp.$1,l=u.split(":");l.length<3&&l.unshift(0),l[2].indexOf(".")>-1&&(l.push.apply(l,t(l[2].split("."))),l.splice(2,1)),e[u]={time:60*parseInt(l[0])*60*1e3+60*parseInt(l[1])*1e3+1e3*parseInt(l[2])+parseInt(l[3]||0),text:a}}}}for(var f=this.translationLyric.split(/\r\n|\n|\r/),h=f.length,c=0;c<h;c++){var m=f[c].trim();if(o.exec(m)){var y=m.replace(o,"").trim();if(y||!this.isRemoveBlankLine){var p=e[RegExp.$1];p&&(p.translation=y)}}}this.lines=Object.values(e),this.lines.sort((function(i,t){return i.time-t.time})),this.maxLine=this.lines.length-1}},{key:"_currentTime",value:function(){return u()-this._performanceTime+this._performanceOffsetTime}},{key:"_findCurLineNum",value:function(i){for(var t=this.lines.length,e=0;e<t;e++)if(i<=this.lines[e].time)return 0===e?0:e-1;return t-1}},{key:"_handleMaxLine",value:function(){this.onPlay(this.curLineNum,this.lines[this.curLineNum].text),this.pause()}},{key:"_refresh",value:function(){var i=this;if(this.curLineNum++,this.curLineNum>=this.maxLine)return this._handleMaxLine();var t=this.lines[this.curLineNum],e=this.lines[this.curLineNum+1],n=this._currentTime(),r=n-t.time;if((r>=0||0===this.curLineNum)&&(this.delay=e.time-t.time-r,this.delay>0))return!this.isOffseted&&this.delay>=this.offset&&(this._performanceOffsetTime+=this.offset,this.delay-=this.offset,this.isOffseted=!0),l.start((function(){i._refresh()}),this.delay),void this.onPlay(this.curLineNum,t.text);this.curLineNum=this._findCurLineNum(n)-1,this._refresh()}},{key:"play",value:function(){var i=arguments.length>0&&void 0!==arguments[0]?arguments[0]:0;this.lines.length&&(this.pause(),this.isPlay=!0,this._performanceOffsetTime=0,this._performanceTime=u()-i,this._performanceTime<0&&(this._performanceOffsetTime=-this._performanceTime,this._performanceTime=0),this.curLineNum=this._findCurLineNum(i)-1,this._refresh())}},{key:"pause",value:function(){if(this.isPlay&&(this.isPlay=!1,this.isOffseted=!1,l.clear(),this.curLineNum!==this.maxLine)){var i=this._findCurLineNum(this._currentTime());this.curLineNum!==i&&(this.curLineNum=i,this.onPlay(i,this.lines[i].text))}}},{key:"setLyric",value:function(i,t){this.isPlay&&this.pause(),this.lyric=i,this.translationLyric=t,this._init()}}])&&r(e.prototype,s),f&&r(e,f),i}()}},t={},function e(n){var r=t[n];if(void 0!==r)return r.exports;var s=t[n]={exports:{}};return i[n](s,s.exports,e),s.exports}(579);var i,t}));
+(function webpackUniversalModuleDefinition(root, factory) {
+	if(typeof exports === 'object' && typeof module === 'object')
+		module.exports = factory();
+	else if(typeof define === 'function' && define.amd)
+		define("Lyric", [], factory);
+	else if(typeof exports === 'object')
+		exports["Lyric"] = factory();
+	else
+		root["Lyric"] = factory();
+})(self, function() {
+return /******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
+
+/***/ 579:
+/***/ ((module) => {
+
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
+
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var timeExp = /^\[([\d:.]*)\]{1}/g;
+var tagRegMap = {
+  title: 'ti',
+  artist: 'ar',
+  album: 'al',
+  offset: 'offset',
+  by: 'by'
+}; // eslint-disable-next-line no-undef
+
+var getNow = (typeof performance === "undefined" ? "undefined" : _typeof(performance)) == 'object' && performance.now ? performance.now.bind(performance) : Date.now.bind(Date); // const timeoutTools = {
+//   expected: 0,
+//   interval: 0,
+//   timeoutId: null,
+//   callback: null,
+//   step() {
+//     var dt = getNow() - this.expected // the drift (positive for overshooting)
+//     if (dt > this.interval) {
+//         // something really bad happened. Maybe the browser (tab) was inactive?
+//         // possibly special handling to avoid futile "catch up" run
+//     }
+//     // … // do what is to be done
+//     this.callback()
+//     this.expected += this.interval
+//     this.timeoutId = setTimeout(() => {
+//       this.step()
+//     }, Math.max(0, this.interval - dt)) // take into account drift
+//   },
+//   start(callback = () => {}, interval = 1000) {
+//     this.callback = callback
+//     this.interval = interval
+//     this.expected = getNow() + interval
+//     this.timeoutId = setTimeout(() => {
+//       this.step()
+//     } ,interval)
+//   },
+//   stop() {
+//     if (this.timeoutId == null) return
+//     clearTimeout(this.timeoutId)
+//     this.timeoutId = null
+//   }
+// }
+
+var timeoutTools = {
+  invokeTime: 0,
+  animationFrameId: null,
+  timeoutId: null,
+  callback: null,
+  thresholdTime: 200,
+  run: function run() {
+    var _this = this;
+
+    this.animationFrameId = window.requestAnimationFrame(function () {
+      _this.animationFrameId = null;
+      var diff = _this.invokeTime - getNow(); // console.log('diff', diff)
+
+      if (diff > 0) {
+        if (diff < _this.thresholdTime) return _this.run();
+        return _this.timeoutId = setTimeout(function () {
+          _this.timeoutId = null;
+
+          _this.run();
+        }, diff - _this.thresholdTime);
+      } // console.log('diff', diff)
+
+
+      _this.callback(diff);
+    });
+  },
+  start: function start() {
+    var callback = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : function () {};
+    var timeout = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+    // console.log(timeout)
+    this.callback = callback;
+    this.invokeTime = getNow() + timeout;
+    this.run();
+  },
+  clear: function clear() {
+    if (this.animationFrameId) {
+      window.cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    if (this.timeoutId) {
+      window.clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+  }
+};
+
+module.exports = /*#__PURE__*/function () {
+  function Lyric() {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+        _ref$lyric = _ref.lyric,
+        lyric = _ref$lyric === void 0 ? '' : _ref$lyric,
+        _ref$translationLyric = _ref.translationLyric,
+        translationLyric = _ref$translationLyric === void 0 ? '' : _ref$translationLyric,
+        _ref$offset = _ref.offset,
+        offset = _ref$offset === void 0 ? 150 : _ref$offset,
+        _ref$onPlay = _ref.onPlay,
+        onPlay = _ref$onPlay === void 0 ? function () {} : _ref$onPlay,
+        _ref$onSetLyric = _ref.onSetLyric,
+        onSetLyric = _ref$onSetLyric === void 0 ? function () {} : _ref$onSetLyric,
+        _ref$isRemoveBlankLin = _ref.isRemoveBlankLine,
+        isRemoveBlankLine = _ref$isRemoveBlankLin === void 0 ? true : _ref$isRemoveBlankLin;
+
+    _classCallCheck(this, Lyric);
+
+    this.lyric = lyric;
+    this.translationLyric = translationLyric;
+    this.tags = {};
+    this.lines = null;
+    this.onPlay = onPlay;
+    this.onSetLyric = onSetLyric;
+    this.isPlay = false;
+    this.curLineNum = 0;
+    this.maxLine = 0;
+    this.offset = offset;
+    this.isOffseted = false;
+    this._performanceTime = 0;
+    this._performanceOffsetTime = 0;
+    this.isRemoveBlankLine = isRemoveBlankLine;
+
+    this._init();
+  }
+
+  _createClass(Lyric, [{
+    key: "_init",
+    value: function _init() {
+      if (this.lyric == null) this.lyric = '';
+      if (this.translationLyric == null) this.translationLyric = '';
+
+      this._initTag();
+
+      this._initLines();
+
+      this.onSetLyric(this.lines);
+    }
+  }, {
+    key: "_initTag",
+    value: function _initTag() {
+      for (var tag in tagRegMap) {
+        var matches = this.lyric.match(new RegExp("\\[".concat(tagRegMap[tag], ":([^\\]]*)]"), 'i'));
+        this.tags[tag] = matches && matches[1] || '';
+      }
+    }
+  }, {
+    key: "_initLines",
+    value: function _initLines() {
+      this.lines = []; // this.translationLines = []
+
+      var lines = this.lyric.split(/\r\n|\n|\r/);
+      var linesMap = {}; // const translationLines = this.translationLyric.split('\n')
+
+      var length = lines.length;
+
+      for (var i = 0; i < length; i++) {
+        var line = lines[i].trim();
+        var result = timeExp.exec(line);
+
+        if (result) {
+          var text = line.replace(timeExp, '').trim();
+
+          if (text || !this.isRemoveBlankLine) {
+            var timeStr = RegExp.$1;
+            var timeArr = timeStr.split(':');
+            if (timeArr.length < 3) timeArr.unshift(0);
+
+            if (timeArr[2].indexOf('.') > -1) {
+              timeArr.push.apply(timeArr, _toConsumableArray(timeArr[2].split('.')));
+              timeArr.splice(2, 1);
+            }
+
+            linesMap[timeStr] = {
+              time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
+              text: text
+            };
+          }
+        }
+      }
+
+      var translationLines = this.translationLyric.split(/\r\n|\n|\r/);
+      var translationLineLength = translationLines.length;
+
+      for (var _i = 0; _i < translationLineLength; _i++) {
+        var _line = translationLines[_i].trim();
+
+        var _result = timeExp.exec(_line);
+
+        if (_result) {
+          var _text = _line.replace(timeExp, '').trim();
+
+          if (_text || !this.isRemoveBlankLine) {
+            var _timeStr = RegExp.$1;
+            var targetLine = linesMap[_timeStr];
+            if (targetLine) targetLine.translation = _text;
+          }
+        }
+      }
+
+      this.lines = Object.values(linesMap);
+      this.lines.sort(function (a, b) {
+        return a.time - b.time;
+      });
+      this.maxLine = this.lines.length - 1;
+    }
+  }, {
+    key: "_currentTime",
+    value: function _currentTime() {
+      return getNow() - this._performanceTime + this._performanceOffsetTime;
+    }
+  }, {
+    key: "_findCurLineNum",
+    value: function _findCurLineNum(curTime) {
+      var length = this.lines.length;
+
+      for (var index = 0; index < length; index++) {
+        if (curTime <= this.lines[index].time) return index === 0 ? 0 : index - 1;
+      }
+
+      return length - 1;
+    }
+  }, {
+    key: "_handleMaxLine",
+    value: function _handleMaxLine() {
+      this.onPlay(this.curLineNum, this.lines[this.curLineNum].text);
+      this.pause();
+    }
+  }, {
+    key: "_refresh",
+    value: function _refresh() {
+      var _this2 = this;
+
+      this.curLineNum++; // console.log('curLineNum time', this.lines[this.curLineNum].time)
+
+      if (this.curLineNum >= this.maxLine) return this._handleMaxLine();
+      var curLine = this.lines[this.curLineNum];
+      var nextLine = this.lines[this.curLineNum + 1];
+
+      var currentTime = this._currentTime();
+
+      var driftTime = currentTime - curLine.time;
+
+      if (driftTime >= 0 || this.curLineNum === 0) {
+        this.delay = nextLine.time - curLine.time - driftTime;
+
+        if (this.delay > 0) {
+          if (!this.isOffseted && this.delay >= this.offset) {
+            this._performanceOffsetTime += this.offset;
+            this.delay -= this.offset;
+            this.isOffseted = true;
+          }
+
+          timeoutTools.start(function () {
+            if (!_this2.isPlay) return;
+
+            _this2._refresh();
+          }, this.delay);
+          this.onPlay(this.curLineNum, curLine.text);
+          return;
+        }
+      }
+
+      this.curLineNum = this._findCurLineNum(currentTime) - 1;
+
+      this._refresh();
+    }
+  }, {
+    key: "play",
+    value: function play() {
+      var curTime = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      if (!this.lines.length) return;
+      this.pause();
+      this.isPlay = true;
+      this._performanceOffsetTime = 0;
+      this._performanceTime = getNow() - curTime;
+
+      if (this._performanceTime < 0) {
+        this._performanceOffsetTime = -this._performanceTime;
+        this._performanceTime = 0;
+      }
+
+      this.curLineNum = this._findCurLineNum(curTime) - 1;
+
+      this._refresh();
+    }
+  }, {
+    key: "pause",
+    value: function pause() {
+      if (!this.isPlay) return;
+      this.isPlay = false;
+      this.isOffseted = false;
+      timeoutTools.clear();
+      if (this.curLineNum === this.maxLine) return;
+
+      var curLineNum = this._findCurLineNum(this._currentTime());
+
+      if (this.curLineNum !== curLineNum) {
+        this.curLineNum = curLineNum;
+        this.onPlay(curLineNum, this.lines[curLineNum].text);
+      }
+    }
+  }, {
+    key: "setLyric",
+    value: function setLyric(lyric, translationLyric) {
+      // console.log(translationLyric)
+      if (this.isPlay) this.pause();
+      this.lyric = lyric;
+      this.translationLyric = translationLyric;
+
+      this._init();
+    }
+  }]);
+
+  return Lyric;
+}();
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__(579);
+/******/ 	
+/******/ 	return __webpack_exports__;
+/******/ })()
+;
+});

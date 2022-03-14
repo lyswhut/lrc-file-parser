@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v1.2.4
+ * lrc-file-parser.js v1.2.5
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -159,7 +159,7 @@ module.exports = /*#__PURE__*/function () {
     this.offset = offset;
     this.isOffseted = false;
     this._performanceTime = 0;
-    this._performanceOffsetTime = 0;
+    this._startTime = 0;
     this.isRemoveBlankLine = isRemoveBlankLine;
 
     this._init();
@@ -248,14 +248,15 @@ module.exports = /*#__PURE__*/function () {
   }, {
     key: "_currentTime",
     value: function _currentTime() {
-      return getNow() - this._performanceTime + this._performanceOffsetTime;
+      return getNow() - this._performanceTime + this._startTime;
     }
   }, {
     key: "_findCurLineNum",
     value: function _findCurLineNum(curTime) {
+      var startIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
       var length = this.lines.length;
 
-      for (var index = 0; index < length; index++) {
+      for (var index = startIndex; index < length; index++) {
         if (curTime <= this.lines[index].time) return index === 0 ? 0 : index - 1;
       }
 
@@ -276,33 +277,45 @@ module.exports = /*#__PURE__*/function () {
 
       if (this.curLineNum >= this.maxLine) return this._handleMaxLine();
       var curLine = this.lines[this.curLineNum];
-      var nextLine = this.lines[this.curLineNum + 1];
 
       var currentTime = this._currentTime();
 
       var driftTime = currentTime - curLine.time;
 
       if (driftTime >= 0 || this.curLineNum === 0) {
+        var nextLine = this.lines[this.curLineNum + 1];
         this.delay = nextLine.time - curLine.time - driftTime;
 
         if (this.delay > 0) {
           if (!this.isOffseted && this.delay >= this.offset) {
+            this._startTime += this.offset;
             this._performanceOffsetTime += this.offset;
             this.delay -= this.offset;
             this.isOffseted = true;
           }
 
-          timeoutTools.start(function () {
-            if (!_this2.isPlay) return;
+          if (this.isPlay) {
+            timeoutTools.start(function () {
+              if (!_this2.isPlay) return;
 
-            _this2._refresh();
-          }, this.delay);
+              _this2._refresh();
+            }, this.delay);
+          }
+
           this.onPlay(this.curLineNum, curLine.text);
+          return;
+        } else {
+          var newCurLineNum = this._findCurLineNum(currentTime, this.curLineNum + 1);
+
+          if (newCurLineNum > this.curLineNum) this.curLineNum = newCurLineNum - 1;
+
+          this._refresh();
+
           return;
         }
       }
 
-      this.curLineNum = this._findCurLineNum(currentTime) - 1;
+      this.curLineNum = this._findCurLineNum(currentTime, this.curLineNum) - 1;
 
       this._refresh();
     }
@@ -313,14 +326,8 @@ module.exports = /*#__PURE__*/function () {
       if (!this.lines.length) return;
       this.pause();
       this.isPlay = true;
-      this._performanceOffsetTime = 0;
-      this._performanceTime = getNow() - curTime;
-
-      if (this._performanceTime < 0) {
-        this._performanceOffsetTime = -this._performanceTime;
-        this._performanceTime = 0;
-      }
-
+      this._performanceTime = getNow();
+      this._startTime = curTime;
       this.curLineNum = this._findCurLineNum(curTime) - 1;
 
       this._refresh();

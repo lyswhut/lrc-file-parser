@@ -184,6 +184,7 @@ module.exports = class Lyric {
   }
 
   _findCurLineNum(curTime, startIndex = 0) {
+    if (curTime <= 0) return 0
     const length = this.lines.length
     for (let index = startIndex; index < length; index++) if (curTime <= this.lines[index].time) return index === 0 ? 0 : index - 1
     return length - 1
@@ -238,7 +239,7 @@ module.exports = class Lyric {
     this._startTime = curTime
     // this._offset = this.tags.offset + this.offset
 
-    this.curLineNum = this._findCurLineNum(curTime) - 1
+    this.curLineNum = this._findCurLineNum(this._currentTime()) - 1
 
     this._refresh()
   }

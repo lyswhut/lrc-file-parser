@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v1.2.6
+ * lrc-file-parser.js v1.2.7
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -262,6 +262,7 @@ module.exports = /*#__PURE__*/function () {
     key: "_findCurLineNum",
     value: function _findCurLineNum(curTime) {
       var startIndex = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+      if (curTime <= 0) return 0;
       var length = this.lines.length;
 
       for (var index = startIndex; index < length; index++) {
@@ -330,7 +331,7 @@ module.exports = /*#__PURE__*/function () {
       this._performanceTime = getNow() - parseInt(this.tags.offset + this.offset);
       this._startTime = curTime; // this._offset = this.tags.offset + this.offset
 
-      this.curLineNum = this._findCurLineNum(curTime) - 1;
+      this.curLineNum = this._findCurLineNum(this._currentTime()) - 1;
 
       this._refresh();
     }

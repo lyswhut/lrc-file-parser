@@ -101,7 +101,6 @@ module.exports = class Lyric {
     this.curLineNum = 0
     this.maxLine = 0
     this.offset = offset
-    this.isOffseted = false
     this._performanceTime = 0
     this._startTime = 0
     this.isRemoveBlankLine = isRemoveBlankLine
@@ -117,9 +116,16 @@ module.exports = class Lyric {
   }
 
   _initTag() {
+    this.tags = {}
     for (let tag in tagRegMap) {
       const matches = this.lyric.match(new RegExp(`\\[${tagRegMap[tag]}:([^\\]]*)]`, 'i'))
       this.tags[tag] = (matches && matches[1]) || ''
+    }
+    if (this.tags.offset) {
+      let offset = parseInt(this.tags.offset)
+      this.tags.offset = Number.isNaN(offset) ? 0 : offset
+    } else {
+      this.tags.offset = 0
     }
   }
 
@@ -203,12 +209,6 @@ module.exports = class Lyric {
       this.delay = nextLine.time - curLine.time - driftTime
 
       if (this.delay > 0) {
-        if (!this.isOffseted && this.delay >= this.offset) {
-          this._startTime += this.offset
-          this._performanceOffsetTime += this.offset
-          this.delay -= this.offset
-          this.isOffseted = true
-        }
         if (this.isPlay) {
           timeoutTools.start(() => {
             if (!this.isPlay) return
@@ -234,8 +234,9 @@ module.exports = class Lyric {
     this.pause()
     this.isPlay = true
 
-    this._performanceTime = getNow()
+    this._performanceTime = getNow() - parseInt(this.tags.offset + this.offset)
     this._startTime = curTime
+    // this._offset = this.tags.offset + this.offset
 
     this.curLineNum = this._findCurLineNum(curTime) - 1
 
@@ -245,7 +246,6 @@ module.exports = class Lyric {
   pause() {
     if (!this.isPlay) return
     this.isPlay = false
-    this.isOffseted = false
     timeoutTools.clear()
     if (this.curLineNum === this.maxLine) return
     const curLineNum = this._findCurLineNum(this._currentTime())

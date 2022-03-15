@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v1.2.5
+ * lrc-file-parser.js v1.2.6
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -36,9 +36,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
 function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } }
 
-function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); return Constructor; }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
-function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
 var timeExp = /^\[([\d:.]*)\]{1}/g;
 var tagRegMap = {
@@ -157,7 +157,6 @@ module.exports = /*#__PURE__*/function () {
     this.curLineNum = 0;
     this.maxLine = 0;
     this.offset = offset;
-    this.isOffseted = false;
     this._performanceTime = 0;
     this._startTime = 0;
     this.isRemoveBlankLine = isRemoveBlankLine;
@@ -180,9 +179,18 @@ module.exports = /*#__PURE__*/function () {
   }, {
     key: "_initTag",
     value: function _initTag() {
+      this.tags = {};
+
       for (var tag in tagRegMap) {
         var matches = this.lyric.match(new RegExp("\\[".concat(tagRegMap[tag], ":([^\\]]*)]"), 'i'));
         this.tags[tag] = matches && matches[1] || '';
+      }
+
+      if (this.tags.offset) {
+        var offset = parseInt(this.tags.offset);
+        this.tags.offset = Number.isNaN(offset) ? 0 : offset;
+      } else {
+        this.tags.offset = 0;
       }
     }
   }, {
@@ -287,13 +295,6 @@ module.exports = /*#__PURE__*/function () {
         this.delay = nextLine.time - curLine.time - driftTime;
 
         if (this.delay > 0) {
-          if (!this.isOffseted && this.delay >= this.offset) {
-            this._startTime += this.offset;
-            this._performanceOffsetTime += this.offset;
-            this.delay -= this.offset;
-            this.isOffseted = true;
-          }
-
           if (this.isPlay) {
             timeoutTools.start(function () {
               if (!_this2.isPlay) return;
@@ -326,8 +327,9 @@ module.exports = /*#__PURE__*/function () {
       if (!this.lines.length) return;
       this.pause();
       this.isPlay = true;
-      this._performanceTime = getNow();
-      this._startTime = curTime;
+      this._performanceTime = getNow() - parseInt(this.tags.offset + this.offset);
+      this._startTime = curTime; // this._offset = this.tags.offset + this.offset
+
       this.curLineNum = this._findCurLineNum(curTime) - 1;
 
       this._refresh();
@@ -337,7 +339,6 @@ module.exports = /*#__PURE__*/function () {
     value: function pause() {
       if (!this.isPlay) return;
       this.isPlay = false;
-      this.isOffseted = false;
       timeoutTools.clear();
       if (this.curLineNum === this.maxLine) return;
 

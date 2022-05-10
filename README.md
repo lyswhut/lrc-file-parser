@@ -44,6 +44,10 @@ lrc.play(30000) // play lyric, 30000 is curent play time, unit: ms
 lrc.pause() // pause lyric
 ```
 
+## CHANGELOG
+
+See [CHANGELOG.md](https://github.com/lyswhut/lrc-file-parser/CHANGELOG.md)
+
 ## LICENSE
 
 MIT

@@ -46,7 +46,7 @@ lrc.pause() // pause lyric
 
 ## CHANGELOG
 
-See [CHANGELOG.md](https://github.com/lyswhut/lrc-file-parser/CHANGELOG.md)
+See [CHANGELOG.md](https://github.com/lyswhut/lrc-file-parser/blob/master/CHANGELOG.md)
 
 ## LICENSE
 

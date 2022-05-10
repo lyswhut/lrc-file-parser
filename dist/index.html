@@ -69,9 +69,9 @@
   var lrcLines = []
   var lrc = new Lyric({
     onPlay: function (line, text) {
-      console.log(lrcLines[line].text + '\n' + (lrcLines[line].translation || ''))
+      console.log(lrcLines[line].text + '\n' + lrcLines[line].extendedLyrics.join('\n'))
       // console.log(lrc.lines[lrc.curLineNum].time - lrc.offset - dom_audio.currentTime * 1000)
-      dom_lyric.innerHTML = text + '<br>' + (lrcLines[line].translation || '')
+      dom_lyric.innerHTML = text + '<br>' + lrcLines[line].extendedLyrics.join('<br>')
     },
     onSetLyric: function (lines) {
       lrcLines = lines
@@ -79,7 +79,7 @@
     }
   })
   // lrc.setLyric(b64DecodeUnicode(encodeLrc), b64DecodeUnicode(encodeLrc))
-  lrc.setLyric(b64DecodeUnicode(encodeLrc), b64DecodeUnicode(encodeTLrcText))
+  lrc.setLyric(b64DecodeUnicode(encodeLrc), [b64DecodeUnicode(encodeTLrcText)])
   dom_audio.onplay = function () {
     lrc.play(dom_audio.currentTime * 1000)
   }

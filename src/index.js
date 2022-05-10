@@ -88,11 +88,26 @@ const timeoutTools = {
   },
 }
 
+const parseExtendedLyric = (lrcLinesMap, extendedLyric) => {
+  const extendedLines = extendedLyric.split(/\r\n|\n|\r/)
+  for (let i = 0; i < extendedLines.length; i++) {
+    const line = extendedLines[i].trim()
+    let result = timeExp.exec(line)
+    if (result) {
+      const text = line.replace(timeExp, '').trim()
+      if (text) {
+        const timeStr = RegExp.$1.replace(/(\.\d\d)0$/, '$1')
+        const targetLine = lrcLinesMap[timeStr]
+        if (targetLine) targetLine.extendedLyrics.push(text)
+      }
+    }
+  }
+}
 
 module.exports = class Lyric {
-  constructor({ lyric = '', translationLyric = '', offset = 150, onPlay = function() { }, onSetLyric = function() { }, isRemoveBlankLine = true } = {}) {
+  constructor({ lyric = '', extendedLyrics = [], offset = 150, onPlay = function() { }, onSetLyric = function() { }, isRemoveBlankLine = true } = {}) {
     this.lyric = lyric
-    this.translationLyric = translationLyric
+    this.extendedLyrics = extendedLyrics
     this.tags = {}
     this.lines = null
     this.onPlay = onPlay
@@ -109,7 +124,7 @@ module.exports = class Lyric {
 
   _init() {
     if (this.lyric == null) this.lyric = ''
-    if (this.translationLyric == null) this.translationLyric = ''
+    if (this.extendedLyrics == null) this.extendedLyrics = []
     this._initTag()
     this._initLines()
     this.onSetLyric(this.lines)
@@ -131,10 +146,8 @@ module.exports = class Lyric {
 
   _initLines() {
     this.lines = []
-    // this.translationLines = []
     const lines = this.lyric.split(/\r\n|\n|\r/)
     const linesMap = {}
-    // const translationLines = this.translationLyric.split('\n')
     const length = lines.length
     for (let i = 0; i < length; i++) {
       const line = lines[i].trim()
@@ -142,7 +155,7 @@ module.exports = class Lyric {
       if (result) {
         const text = line.replace(timeExp, '').trim()
         if (text || !this.isRemoveBlankLine) {
-          const timeStr = RegExp.$1
+          const timeStr = RegExp.$1.replace(/(\.\d\d)0$/, '$1')
           const timeArr = timeStr.split(':')
           if (timeArr.length < 3) timeArr.unshift(0)
           if (timeArr[2].indexOf('.') > -1) {
@@ -153,25 +166,13 @@ module.exports = class Lyric {
           linesMap[timeStr] = {
             time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
             text,
+            extendedLyrics: [],
           }
         }
       }
     }
 
-    const translationLines = this.translationLyric.split(/\r\n|\n|\r/)
-    const translationLineLength = translationLines.length
-    for (let i = 0; i < translationLineLength; i++) {
-      const line = translationLines[i].trim()
-      let result = timeExp.exec(line)
-      if (result) {
-        const text = line.replace(timeExp, '').trim()
-        if (text || !this.isRemoveBlankLine) {
-          const timeStr = RegExp.$1
-          const targetLine = linesMap[timeStr]
-          if (targetLine) targetLine.translation = text
-        }
-      }
-    }
+    for (const lrc of this.extendedLyrics) parseExtendedLyric(linesMap, lrc)
     this.lines = Object.values(linesMap)
     this.lines.sort((a, b) => {
       return a.time - b.time
@@ -256,11 +257,11 @@ module.exports = class Lyric {
     }
   }
 
-  setLyric(lyric, translationLyric) {
-    // console.log(translationLyric)
+  setLyric(lyric, extendedLyrics) {
+    // console.log(extendedLyrics)
     if (this.isPlay) this.pause()
     this.lyric = lyric
-    this.translationLyric = translationLyric
+    this.extendedLyrics = extendedLyrics
     this._init()
   }
 }

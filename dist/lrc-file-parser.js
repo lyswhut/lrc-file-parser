@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v1.2.7
+ * lrc-file-parser.js v2.0.0
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -19,6 +19,8 @@ return /******/ (() => { // webpackBootstrap
 
 /***/ 579:
 /***/ ((module) => {
+
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
 
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
@@ -129,13 +131,32 @@ var timeoutTools = {
   }
 };
 
+var parseExtendedLyric = function parseExtendedLyric(lrcLinesMap, extendedLyric) {
+  var extendedLines = extendedLyric.split(/\r\n|\n|\r/);
+
+  for (var i = 0; i < extendedLines.length; i++) {
+    var line = extendedLines[i].trim();
+    var result = timeExp.exec(line);
+
+    if (result) {
+      var text = line.replace(timeExp, '').trim();
+
+      if (text) {
+        var timeStr = RegExp.$1.replace(/(\.\d\d)0$/, '$1');
+        var targetLine = lrcLinesMap[timeStr];
+        if (targetLine) targetLine.extendedLyrics.push(text);
+      }
+    }
+  }
+};
+
 module.exports = /*#__PURE__*/function () {
   function Lyric() {
     var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
         _ref$lyric = _ref.lyric,
         lyric = _ref$lyric === void 0 ? '' : _ref$lyric,
-        _ref$translationLyric = _ref.translationLyric,
-        translationLyric = _ref$translationLyric === void 0 ? '' : _ref$translationLyric,
+        _ref$extendedLyrics = _ref.extendedLyrics,
+        extendedLyrics = _ref$extendedLyrics === void 0 ? [] : _ref$extendedLyrics,
         _ref$offset = _ref.offset,
         offset = _ref$offset === void 0 ? 150 : _ref$offset,
         _ref$onPlay = _ref.onPlay,
@@ -148,7 +169,7 @@ module.exports = /*#__PURE__*/function () {
     _classCallCheck(this, Lyric);
 
     this.lyric = lyric;
-    this.translationLyric = translationLyric;
+    this.extendedLyrics = extendedLyrics;
     this.tags = {};
     this.lines = null;
     this.onPlay = onPlay;
@@ -168,7 +189,7 @@ module.exports = /*#__PURE__*/function () {
     key: "_init",
     value: function _init() {
       if (this.lyric == null) this.lyric = '';
-      if (this.translationLyric == null) this.translationLyric = '';
+      if (this.extendedLyrics == null) this.extendedLyrics = [];
 
       this._initTag();
 
@@ -196,11 +217,9 @@ module.exports = /*#__PURE__*/function () {
   }, {
     key: "_initLines",
     value: function _initLines() {
-      this.lines = []; // this.translationLines = []
-
+      this.lines = [];
       var lines = this.lyric.split(/\r\n|\n|\r/);
-      var linesMap = {}; // const translationLines = this.translationLyric.split('\n')
-
+      var linesMap = {};
       var length = lines.length;
 
       for (var i = 0; i < length; i++) {
@@ -211,7 +230,7 @@ module.exports = /*#__PURE__*/function () {
           var text = line.replace(timeExp, '').trim();
 
           if (text || !this.isRemoveBlankLine) {
-            var timeStr = RegExp.$1;
+            var timeStr = RegExp.$1.replace(/(\.\d\d)0$/, '$1');
             var timeArr = timeStr.split(':');
             if (timeArr.length < 3) timeArr.unshift(0);
 
@@ -222,29 +241,25 @@ module.exports = /*#__PURE__*/function () {
 
             linesMap[timeStr] = {
               time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
-              text: text
+              text: text,
+              extendedLyrics: []
             };
           }
         }
       }
 
-      var translationLines = this.translationLyric.split(/\r\n|\n|\r/);
-      var translationLineLength = translationLines.length;
+      var _iterator = _createForOfIteratorHelper(this.extendedLyrics),
+          _step;
 
-      for (var _i = 0; _i < translationLineLength; _i++) {
-        var _line = translationLines[_i].trim();
-
-        var _result = timeExp.exec(_line);
-
-        if (_result) {
-          var _text = _line.replace(timeExp, '').trim();
-
-          if (_text || !this.isRemoveBlankLine) {
-            var _timeStr = RegExp.$1;
-            var targetLine = linesMap[_timeStr];
-            if (targetLine) targetLine.translation = _text;
-          }
+      try {
+        for (_iterator.s(); !(_step = _iterator.n()).done;) {
+          var lrc = _step.value;
+          parseExtendedLyric(linesMap, lrc);
         }
+      } catch (err) {
+        _iterator.e(err);
+      } finally {
+        _iterator.f();
       }
 
       this.lines = Object.values(linesMap);
@@ -352,11 +367,11 @@ module.exports = /*#__PURE__*/function () {
     }
   }, {
     key: "setLyric",
-    value: function setLyric(lyric, translationLyric) {
-      // console.log(translationLyric)
+    value: function setLyric(lyric, extendedLyrics) {
+      // console.log(extendedLyrics)
       if (this.isPlay) this.pause();
       this.lyric = lyric;
-      this.translationLyric = translationLyric;
+      this.extendedLyrics = extendedLyrics;
 
       this._init();
     }

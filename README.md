@@ -38,7 +38,7 @@ var lrc = new Lyric({
   offset: 150, // offset time(ms), default is 150 ms
   isRemoveBlankLine: true // is remove blank line, default is true
 })
-lrc.setLyric(lyricStr, lyricTranslationStr) // set lyric, lyricStr is lyric file text, translationLyricStr is lyric translation file text (optional)
+lrc.setLyric(lyricStr, extendedLyricStrs) // set lyric, lyricStr is lyric file text, translationLyricStr is extended lyric file text array (optional)
                       // note: Setting the lyrics will automatically pause the lyrics playback
 lrc.play(30000) // play lyric, 30000 is curent play time, unit: ms
 lrc.pause() // pause lyric

@@ -8,6 +8,11 @@ interface lines {
    * current line lyric text
    */
   text: String,
+
+  /**
+   * extended lyrics
+   */
+  extendedLyrics: String[],
 }
 
 interface options {
@@ -50,9 +55,9 @@ declare class Lyric {
   /**
    * Set lyric
    * @param lyricStr lyric file text
-   * @param lyricTranslationStr lyric translation file text
+   * @param extendedLyricStrs extended lyric file text array, for example lyric translations
    */
-  setLyric(lyricStr: String, lyricTranslationStr?: String): void;
+  setLyric(lyricStr: String, extendedLyricStrs?: []): void;
 
   /**
    * Play lyric

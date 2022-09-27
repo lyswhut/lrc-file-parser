@@ -1,4 +1,5 @@
-const timeExp = /^\[([\d:.]*)\]{1}/g
+const timeFieldExp = /^(\[[\d:.]+\])+/g
+const timeExp = /[\d:.]+/g
 const tagRegMap = {
   title: 'ti',
   artist: 'ar',
@@ -92,13 +93,18 @@ const parseExtendedLyric = (lrcLinesMap, extendedLyric) => {
   const extendedLines = extendedLyric.split(/\r\n|\n|\r/)
   for (let i = 0; i < extendedLines.length; i++) {
     const line = extendedLines[i].trim()
-    let result = timeExp.exec(line)
+    let result = timeFieldExp.exec(line)
     if (result) {
-      const text = line.replace(timeExp, '').trim()
+      const timeField = result[0]
+      const text = line.replace(timeFieldExp, '').trim()
       if (text) {
-        const timeStr = RegExp.$1.replace(/(\.\d\d)0$/, '$1')
-        const targetLine = lrcLinesMap[timeStr]
-        if (targetLine) targetLine.extendedLyrics.push(text)
+        const times = timeField.match(timeExp)
+        if (times == null) continue
+        for (const time of times) {
+          const timeStr = time.replace(/(\.\d\d)0$/, '$1')
+          const targetLine = lrcLinesMap[timeStr]
+          if (targetLine) targetLine.extendedLyrics.push(text)
+        }
       }
     }
   }
@@ -151,22 +157,27 @@ module.exports = class Lyric {
     const length = lines.length
     for (let i = 0; i < length; i++) {
       const line = lines[i].trim()
-      let result = timeExp.exec(line)
+      let result = timeFieldExp.exec(line)
       if (result) {
-        const text = line.replace(timeExp, '').trim()
+        const timeField = result[0]
+        const text = line.replace(timeFieldExp, '').trim()
         if (text || !this.isRemoveBlankLine) {
-          const timeStr = RegExp.$1.replace(/(\.\d\d)0$/, '$1')
-          const timeArr = timeStr.split(':')
-          if (timeArr.length < 3) timeArr.unshift(0)
-          if (timeArr[2].indexOf('.') > -1) {
-            timeArr.push(...timeArr[2].split('.'))
-            timeArr.splice(2, 1)
-          }
+          const times = timeField.match(timeExp)
+          if (times == null) continue
+          for (const time of times) {
+            const timeStr = time.replace(/(\.\d\d)0$/, '$1')
+            const timeArr = timeStr.split(':')
+            if (timeArr.length < 3) timeArr.unshift(0)
+            if (timeArr[2].indexOf('.') > -1) {
+              timeArr.push(...timeArr[2].split('.'))
+              timeArr.splice(2, 1)
+            }
 
-          linesMap[timeStr] = {
-            time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
-            text,
-            extendedLyrics: [],
+            linesMap[timeStr] = {
+              time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
+              text,
+              extendedLyrics: [],
+            }
           }
         }
       }

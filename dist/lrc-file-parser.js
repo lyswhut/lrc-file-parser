@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v2.0.0
+ * lrc-file-parser.js v2.1.0
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -13,26 +13,20 @@
 		exports["Lyric"] = factory();
 	else
 		root["Lyric"] = factory();
-})(self, function() {
+})(self, () => {
 return /******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
 /***/ 579:
 /***/ ((module) => {
 
-function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
-
 function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableSpread(); }
 
 function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); }
 
-function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
-
 function _iterableToArray(iter) { if (typeof Symbol !== "undefined" && iter[Symbol.iterator] != null || iter["@@iterator"] != null) return Array.from(iter); }
 
 function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) return _arrayLikeToArray(arr); }
-
-function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
@@ -40,9 +34,16 @@ function _defineProperties(target, props) { for (var i = 0; i < props.length; i+
 
 function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
 
+function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
+
+function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o === "string") return _arrayLikeToArray(o, minLen); var n = Object.prototype.toString.call(o).slice(8, -1); if (n === "Object" && o.constructor) n = o.constructor.name; if (n === "Map" || n === "Set") return Array.from(o); if (n === "Arguments" || /^(?:Ui|I)nt(?:8|16|32)(?:Clamped)?Array$/.test(n)) return _arrayLikeToArray(o, minLen); }
+
+function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
+
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 
-var timeExp = /^\[([\d:.]*)\]{1}/g;
+var timeFieldExp = /^(\[[\d:.]+\])+/g;
+var timeExp = /[\d:.]+/g;
 var tagRegMap = {
   title: 'ti',
   artist: 'ar',
@@ -136,15 +137,31 @@ var parseExtendedLyric = function parseExtendedLyric(lrcLinesMap, extendedLyric)
 
   for (var i = 0; i < extendedLines.length; i++) {
     var line = extendedLines[i].trim();
-    var result = timeExp.exec(line);
+    var result = timeFieldExp.exec(line);
 
     if (result) {
-      var text = line.replace(timeExp, '').trim();
+      var timeField = result[0];
+      var text = line.replace(timeFieldExp, '').trim();
 
       if (text) {
-        var timeStr = RegExp.$1.replace(/(\.\d\d)0$/, '$1');
-        var targetLine = lrcLinesMap[timeStr];
-        if (targetLine) targetLine.extendedLyrics.push(text);
+        var times = timeField.match(timeExp);
+        if (times == null) continue;
+
+        var _iterator = _createForOfIteratorHelper(times),
+            _step;
+
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var time = _step.value;
+            var timeStr = time.replace(/(\.\d\d)0$/, '$1');
+            var targetLine = lrcLinesMap[timeStr];
+            if (targetLine) targetLine.extendedLyrics.push(text);
+          }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
+        }
       }
     }
   }
@@ -224,42 +241,58 @@ module.exports = /*#__PURE__*/function () {
 
       for (var i = 0; i < length; i++) {
         var line = lines[i].trim();
-        var result = timeExp.exec(line);
+        var result = timeFieldExp.exec(line);
 
         if (result) {
-          var text = line.replace(timeExp, '').trim();
+          var timeField = result[0];
+          var text = line.replace(timeFieldExp, '').trim();
 
           if (text || !this.isRemoveBlankLine) {
-            var timeStr = RegExp.$1.replace(/(\.\d\d)0$/, '$1');
-            var timeArr = timeStr.split(':');
-            if (timeArr.length < 3) timeArr.unshift(0);
+            var times = timeField.match(timeExp);
+            if (times == null) continue;
 
-            if (timeArr[2].indexOf('.') > -1) {
-              timeArr.push.apply(timeArr, _toConsumableArray(timeArr[2].split('.')));
-              timeArr.splice(2, 1);
+            var _iterator2 = _createForOfIteratorHelper(times),
+                _step2;
+
+            try {
+              for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+                var time = _step2.value;
+                var timeStr = time.replace(/(\.\d\d)0$/, '$1');
+                var timeArr = timeStr.split(':');
+                if (timeArr.length < 3) timeArr.unshift(0);
+
+                if (timeArr[2].indexOf('.') > -1) {
+                  timeArr.push.apply(timeArr, _toConsumableArray(timeArr[2].split('.')));
+                  timeArr.splice(2, 1);
+                }
+
+                linesMap[timeStr] = {
+                  time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
+                  text: text,
+                  extendedLyrics: []
+                };
+              }
+            } catch (err) {
+              _iterator2.e(err);
+            } finally {
+              _iterator2.f();
             }
-
-            linesMap[timeStr] = {
-              time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
-              text: text,
-              extendedLyrics: []
-            };
           }
         }
       }
 
-      var _iterator = _createForOfIteratorHelper(this.extendedLyrics),
-          _step;
+      var _iterator3 = _createForOfIteratorHelper(this.extendedLyrics),
+          _step3;
 
       try {
-        for (_iterator.s(); !(_step = _iterator.n()).done;) {
-          var lrc = _step.value;
+        for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+          var lrc = _step3.value;
           parseExtendedLyric(linesMap, lrc);
         }
       } catch (err) {
-        _iterator.e(err);
+        _iterator3.e(err);
       } finally {
-        _iterator.f();
+        _iterator3.f();
       }
 
       this.lines = Object.values(linesMap);

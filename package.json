@@ -1,6 +1,6 @@
 {
   "name": "lrc-file-parser",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Javascript-based lrc file parser",
   "main": "./dist/lrc-file-parser.js",
   "publishConfig": {
@@ -25,17 +25,17 @@
   },
   "homepage": "https://github.com/lyswhut/lrc-file-parser#readme",
   "devDependencies": {
-    "@babel/core": "^7.17.10",
-    "@babel/preset-env": "^7.17.10",
+    "@babel/core": "^7.19.1",
+    "@babel/preset-env": "^7.19.1",
     "babel-loader": "^8.2.5",
     "cross-env": "^7.0.3",
-    "eslint": "^8.15.0",
+    "eslint": "^8.24.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.0.0",
-    "terser-webpack-plugin": "^5.3.1",
-    "webpack": "^5.72.0",
-    "webpack-cli": "^4.9.2"
+    "eslint-plugin-promise": "^6.0.1",
+    "terser-webpack-plugin": "^5.3.6",
+    "webpack": "^5.74.0",
+    "webpack-cli": "^4.10.0"
   }
 }

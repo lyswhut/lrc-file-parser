@@ -6,6 +6,24 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.1.0](https://github.com/lyswhut/lrc-file-parser/compare/v2.0.0...v2.1.0) - 2022-09-27
+
+Support parse of single line multi time label:
+
+Original text:
+
+```text
+[00:09.25][01:02.16][02:06.30]Never gonna make you cry never gonna say goodbye
+```
+
+Parsered:
+
+```text
+[00:09.25]Never gonna make you cry never gonna say goodbye
+[01:02.16]Never gonna make you cry never gonna say goodbye
+[02:06.30]Never gonna make you cry never gonna say goodbye
+```
+
 ## [2.0.0](https://github.com/lyswhut/lrc-file-parser/compare/v1.2.7...v2.0.0) - 2022-05-10
 
 ### BREAKING CHANGE

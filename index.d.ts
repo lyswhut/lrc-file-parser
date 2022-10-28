@@ -2,17 +2,17 @@ interface lines {
   /**
    * current line play time(ms)
    */
-  time: Number,
+  time: number
 
   /**
    * current line lyric text
    */
-  text: String,
+  text: string
 
   /**
    * extended lyrics
    */
-  extendedLyrics: String[],
+  extendedLyrics: string[]
 }
 
 interface options {
@@ -21,33 +21,33 @@ interface options {
    * @param line line number of current play
    * @param text lyric text of current play line
    */
-  onPlay(line: Number, text: String): void;
+  onPlay(line: number, text: string): void
 
   /**
    * listening lyrics seting event
    * @param lines array of all lyric text
    */
-  onSetLyric(lines: lines[]): void;
+  onSetLyric(lines: lines[]): void
 
   /**
    * offset time(ms), default is 150 ms
    */
-  offset: number;
+  offset: number
 
   /**
    * has remove blank line, default is true
    */
-  isRemoveBlankLine: boolean;
+  isRemoveBlankLine: boolean
 
   /**
    * lyric file text
    */
-  lyric: string;
+  lyric: string
 
   /**
    * lyric translation file text
    */
-  translationLyric: string;
+  translationLyric: string
 }
 
 declare class Lyric {
@@ -57,18 +57,18 @@ declare class Lyric {
    * @param lyricStr lyric file text
    * @param extendedLyricStrs extended lyric file text array, for example lyric translations
    */
-  setLyric(lyricStr: String, extendedLyricStrs?: []): void;
+  setLyric(lyricStr: String, extendedLyricStrs?: string[]): void
 
   /**
    * Play lyric
    * @param time play time, unit: ms
    */
-  play(time: Number): void;
+  play(time: number): void
 
   /**
    * Pause lyric
    */
-  pause(): void;
+  pause(): void
 }
 
 export default Lyric

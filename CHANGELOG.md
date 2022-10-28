@@ -6,6 +6,10 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.2.0](https://github.com/lyswhut/lrc-file-parser/compare/v2.0.0...v2.1.0) - 2022-10-28
+
+Support parse single file multilingual lyrics
+
 ## [2.1.0](https://github.com/lyswhut/lrc-file-parser/compare/v2.0.0...v2.1.0) - 2022-09-27
 
 Support parse of single line multi time label:

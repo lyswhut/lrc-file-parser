@@ -1,4 +1,4 @@
-const timeFieldExp = /^(\[[\d:.]+\])+/g
+const timeFieldExp = /^(?:\[[\d:.]+\])+/g
 const timeExp = /[\d:.]+/g
 const tagRegMap = {
   title: 'ti',
@@ -166,6 +166,10 @@ module.exports = class Lyric {
           if (times == null) continue
           for (const time of times) {
             const timeStr = time.replace(/(\.\d\d)0$/, '$1')
+            if (linesMap[timeStr]) {
+              linesMap[timeStr].extendedLyrics.push(text)
+              continue
+            }
             const timeArr = timeStr.split(':')
             if (timeArr.length < 3) timeArr.unshift(0)
             if (timeArr[2].indexOf('.') > -1) {

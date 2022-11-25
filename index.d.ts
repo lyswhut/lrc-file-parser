@@ -1,4 +1,4 @@
-interface lines {
+interface Lines {
   /**
    * current line play time(ms)
    */
@@ -15,7 +15,7 @@ interface lines {
   extendedLyrics: string[]
 }
 
-interface options {
+interface Options {
   /**
    * Listening play event
    * @param line line number of current play
@@ -27,31 +27,31 @@ interface options {
    * listening lyrics seting event
    * @param lines array of all lyric text
    */
-  onSetLyric(lines: lines[]): void
+  onSetLyric(lines: Lines[]): void
 
   /**
    * offset time(ms), default is 150 ms
    */
-  offset: number
+  offset?: number
 
   /**
    * has remove blank line, default is true
    */
-  isRemoveBlankLine: boolean
+  isRemoveBlankLine?: boolean
 
   /**
    * lyric file text
    */
-  lyric: string
+  lyric?: string
 
   /**
    * lyric translation file text
    */
-  translationLyric: string
+  translationLyric?: string
 }
 
 declare class Lyric {
-  constructor(options: options);
+  constructor(options: Options)
   /**
    * Set lyric
    * @param lyricStr lyric file text

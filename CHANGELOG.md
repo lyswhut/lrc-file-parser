@@ -6,7 +6,11 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-## [2.2.2](https://github.com/lyswhut/lrc-file-parser/compare/v2.2.0...v2.2.1) - 2022-11-25
+## [2.2.3](https://github.com/lyswhut/lrc-file-parser/compare/v2.2.2...v2.2.3) - 2022-12-08
+
+- Fix extendedLyrics time label match
+
+## [2.2.2](https://github.com/lyswhut/lrc-file-parser/compare/v2.2.1...v2.2.2) - 2022-11-25
 
 - Update dev dependencies
 - Fix index.d.ts

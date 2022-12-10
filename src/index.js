@@ -102,7 +102,7 @@ const parseExtendedLyric = (lrcLinesMap, extendedLyric) => {
         if (times == null) continue
         for (let time of times) {
           if (!time.includes('.')) time += '.0'
-          const timeStr = time.replace(/(?:\.0+|0+)$/, '$1')
+          const timeStr = time.replace(/(?:\.0+|0+)$/, '')
           const targetLine = lrcLinesMap[timeStr]
           if (targetLine) targetLine.extendedLyrics.push(text)
         }

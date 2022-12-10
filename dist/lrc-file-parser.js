@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v2.2.3
+ * lrc-file-parser.js v2.2.4
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -238,6 +238,7 @@ module.exports = /*#__PURE__*/function () {
                   timeArr.push.apply(timeArr, _toConsumableArray(timeArr[2].split('.')));
                   timeArr.splice(2, 1);
                 }
+                if (!timeArr[2]) timeArr[2] = '0';
                 linesMap[timeStr] = {
                   time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
                   text: text,

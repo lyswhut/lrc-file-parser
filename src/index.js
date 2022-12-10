@@ -175,7 +175,7 @@ module.exports = class Lyric {
             if (timeArr[2].indexOf('.') > -1) {
               timeArr.push(...timeArr[2].split('.'))
               timeArr.splice(2, 1)
-            } if (!timeArr[2]) timeArr[2] = '0'
+            } else if (!timeArr[2]) timeArr[2] = '0'
 
             linesMap[timeStr] = {
               time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),

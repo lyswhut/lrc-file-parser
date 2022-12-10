@@ -1,6 +1,6 @@
 {
   "name": "lrc-file-parser",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "Javascript-based lrc file parser",
   "main": "./dist/lrc-file-parser.js",
   "publishConfig": {

@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v2.2.6
+ * lrc-file-parser.js v2.2.7
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -138,7 +138,8 @@ var parseExtendedLyric = function parseExtendedLyric(lrcLinesMap, extendedLyric)
         try {
           for (_iterator.s(); !(_step = _iterator.n()).done;) {
             var time = _step.value;
-            var timeStr = time.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
+            if (!time.includes('.')) time += '.0';
+            var timeStr = time.replace(/(?:\.0+|0+)$/, '$1');
             var targetLine = lrcLinesMap[timeStr];
             if (targetLine) targetLine.extendedLyrics.push(text);
           }
@@ -227,7 +228,8 @@ module.exports = /*#__PURE__*/function () {
             try {
               for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
                 var time = _step2.value;
-                var timeStr = time.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
+                if (!time.includes('.')) time += '.0';
+                var timeStr = time.replace(/(?:\.0+|0+)$/, '');
                 if (linesMap[timeStr]) {
                   linesMap[timeStr].extendedLyrics.push(text);
                   continue;

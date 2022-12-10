@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v2.2.4
+ * lrc-file-parser.js v2.2.6
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -138,7 +138,7 @@ var parseExtendedLyric = function parseExtendedLyric(lrcLinesMap, extendedLyric)
         try {
           for (_iterator.s(); !(_step = _iterator.n()).done;) {
             var time = _step.value;
-            var timeStr = time.replace(/(?:\.0+|0+)$/, '$1');
+            var timeStr = time.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
             var targetLine = lrcLinesMap[timeStr];
             if (targetLine) targetLine.extendedLyrics.push(text);
           }
@@ -227,7 +227,7 @@ module.exports = /*#__PURE__*/function () {
             try {
               for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
                 var time = _step2.value;
-                var timeStr = time.replace(/(?:\.0+|0+)$/, '$1');
+                var timeStr = time.replace(/(?:\.0+|(\.\d+?)0+)$/, '$1');
                 if (linesMap[timeStr]) {
                   linesMap[timeStr].extendedLyrics.push(text);
                   continue;
@@ -237,7 +237,7 @@ module.exports = /*#__PURE__*/function () {
                 if (timeArr[2].indexOf('.') > -1) {
                   timeArr.push.apply(timeArr, _toConsumableArray(timeArr[2].split('.')));
                   timeArr.splice(2, 1);
-                } else if (!timeArr[2]) timeArr[2] = '0';
+                }
                 linesMap[timeStr] = {
                   time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
                   text: text,

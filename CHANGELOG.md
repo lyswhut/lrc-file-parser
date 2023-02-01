@@ -6,6 +6,10 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.2.9](https://github.com/lyswhut/lrc-file-parser/compare/v2.2.7...v2.2.8) - 2023-02-01
+
+- Fix extended lyrics match
+
 ## [2.2.8](https://github.com/lyswhut/lrc-file-parser/compare/v2.2.7...v2.2.8) - 2022-12-08
 
 - Fix match

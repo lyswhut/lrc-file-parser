@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v2.2.9
+ * lrc-file-parser.js v2.3.0
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -165,6 +165,8 @@ module.exports = /*#__PURE__*/function () {
       extendedLyrics = _ref$extendedLyrics === void 0 ? [] : _ref$extendedLyrics,
       _ref$offset = _ref.offset,
       offset = _ref$offset === void 0 ? 150 : _ref$offset,
+      _ref$playbackRate = _ref.playbackRate,
+      playbackRate = _ref$playbackRate === void 0 ? 1 : _ref$playbackRate,
       _ref$onPlay = _ref.onPlay,
       onPlay = _ref$onPlay === void 0 ? function () {} : _ref$onPlay,
       _ref$onSetLyric = _ref.onSetLyric,
@@ -182,6 +184,7 @@ module.exports = /*#__PURE__*/function () {
     this.curLineNum = 0;
     this.maxLine = 0;
     this.offset = offset;
+    this._playbackRate = playbackRate;
     this._performanceTime = 0;
     this._startTime = 0;
     this.isRemoveBlankLine = isRemoveBlankLine;
@@ -279,7 +282,7 @@ module.exports = /*#__PURE__*/function () {
   }, {
     key: "_currentTime",
     value: function _currentTime() {
-      return getNow() - this._performanceTime + this._startTime;
+      return (getNow() - this._performanceTime) * this._playbackRate + this._startTime;
     }
   }, {
     key: "_findCurLineNum",
@@ -310,13 +313,13 @@ module.exports = /*#__PURE__*/function () {
       var driftTime = currentTime - curLine.time;
       if (driftTime >= 0 || this.curLineNum === 0) {
         var nextLine = this.lines[this.curLineNum + 1];
-        this.delay = nextLine.time - curLine.time - driftTime;
-        if (this.delay > 0) {
+        var delay = (nextLine.time - curLine.time - driftTime) / this._playbackRate;
+        if (delay > 0) {
           if (this.isPlay) {
             timeoutTools.start(function () {
               if (!_this2.isPlay) return;
               _this2._refresh();
-            }, this.delay);
+            }, delay);
           }
           this.onPlay(this.curLineNum, curLine.text);
           return;
@@ -356,6 +359,14 @@ module.exports = /*#__PURE__*/function () {
         this.curLineNum = curLineNum;
         this.onPlay(curLineNum, this.lines[curLineNum].text);
       }
+    }
+  }, {
+    key: "setPlaybackRate",
+    value: function setPlaybackRate(playbackRate) {
+      this._playbackRate = playbackRate;
+      if (!this.lines.length) return;
+      if (!this.isPlay) return;
+      this.play(this._currentTime());
     }
   }, {
     key: "setLyric",

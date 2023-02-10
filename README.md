@@ -36,6 +36,7 @@ var lrc = new Lyric({
     console.log(lines) // lines is array of all lyric text
   },
   offset: 150, // offset time(ms), default is 150 ms
+  playbackRate: 1, // playback rate, default is 1
   isRemoveBlankLine: true // is remove blank line, default is true
 })
 
@@ -44,6 +45,9 @@ lrc.setLyric(lyricStr, extendedLyricStrs) // set lyric, lyricStr is lyric file t
                       // note: Setting the lyrics will automatically pause the lyrics playback
 lrc.play(30000) // play lyric, 30000 is curent play time, unit: ms
 lrc.pause() // pause lyric
+
+lrc.setPlaybackRate(1.2) // set playback rate to 1.2x
+
 ```
 
 ## CHANGELOG

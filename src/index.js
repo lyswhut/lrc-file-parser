@@ -115,7 +115,7 @@ const parseExtendedLyric = (lrcLinesMap, extendedLyric) => {
 }
 
 module.exports = class Lyric {
-  constructor({ lyric = '', extendedLyrics = [], offset = 150, onPlay = function() { }, onSetLyric = function() { }, isRemoveBlankLine = true } = {}) {
+  constructor({ lyric = '', extendedLyrics = [], offset = 150, playbackRate = 1, onPlay = function() { }, onSetLyric = function() { }, isRemoveBlankLine = true } = {}) {
     this.lyric = lyric
     this.extendedLyrics = extendedLyrics
     this.tags = {}
@@ -126,6 +126,7 @@ module.exports = class Lyric {
     this.curLineNum = 0
     this.maxLine = 0
     this.offset = offset
+    this._playbackRate = playbackRate
     this._performanceTime = 0
     this._startTime = 0
     this.isRemoveBlankLine = isRemoveBlankLine
@@ -202,7 +203,7 @@ module.exports = class Lyric {
   }
 
   _currentTime() {
-    return getNow() - this._performanceTime + this._startTime
+    return (getNow() - this._performanceTime) * this._playbackRate + this._startTime
   }
 
   _findCurLineNum(curTime, startIndex = 0) {
@@ -229,14 +230,14 @@ module.exports = class Lyric {
 
     if (driftTime >= 0 || this.curLineNum === 0) {
       let nextLine = this.lines[this.curLineNum + 1]
-      this.delay = nextLine.time - curLine.time - driftTime
+      const delay = (nextLine.time - curLine.time - driftTime) / this._playbackRate
 
-      if (this.delay > 0) {
+      if (delay > 0) {
         if (this.isPlay) {
           timeoutTools.start(() => {
             if (!this.isPlay) return
             this._refresh()
-          }, this.delay)
+          }, delay)
         }
         this.onPlay(this.curLineNum, curLine.text)
         return
@@ -276,6 +277,13 @@ module.exports = class Lyric {
       this.curLineNum = curLineNum
       this.onPlay(curLineNum, this.lines[curLineNum].text)
     }
+  }
+
+  setPlaybackRate(playbackRate) {
+    this._playbackRate = playbackRate
+    if (!this.lines.length) return
+    if (!this.isPlay) return
+    this.play(this._currentTime())
   }
 
   setLyric(lyric, extendedLyrics) {

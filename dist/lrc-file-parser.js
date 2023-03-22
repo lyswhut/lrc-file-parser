@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v2.3.0
+ * lrc-file-parser.js v2.3.1
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -322,13 +322,12 @@ module.exports = /*#__PURE__*/function () {
             }, delay);
           }
           this.onPlay(this.curLineNum, curLine.text);
-          return;
         } else {
           var newCurLineNum = this._findCurLineNum(currentTime, this.curLineNum + 1);
           if (newCurLineNum > this.curLineNum) this.curLineNum = newCurLineNum - 1;
           this._refresh();
-          return;
         }
+        return;
       }
       this.curLineNum = this._findCurLineNum(currentTime, this.curLineNum) - 1;
       this._refresh();

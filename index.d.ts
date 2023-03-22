@@ -35,6 +35,11 @@ interface Options {
   offset?: number
 
   /**
+   * playback rate, default is 1
+   */
+  playbackRate?: number
+
+  /**
    * has remove blank line, default is true
    */
   isRemoveBlankLine?: boolean
@@ -69,6 +74,12 @@ declare class Lyric {
    * Pause lyric
    */
   pause(): void
+
+  /**
+   * Set playback rate
+   * @param playbackRate playback rate
+   */
+  setPlaybackRate(playbackRate: number): void
 }
 
 export default Lyric

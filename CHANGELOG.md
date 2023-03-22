@@ -6,6 +6,10 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.3.1](https://github.com/lyswhut/lrc-file-parser/compare/v2.3.0...v2.3.1) - 2023-03-22
+
+- Fix index.d.ts
+
 ## [2.3.0](https://github.com/lyswhut/lrc-file-parser/compare/v2.2.9...v2.3.0) - 2023-02-10
 
 - Add playback rate support

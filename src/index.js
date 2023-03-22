@@ -240,13 +240,12 @@ module.exports = class Lyric {
           }, delay)
         }
         this.onPlay(this.curLineNum, curLine.text)
-        return
       } else {
         let newCurLineNum = this._findCurLineNum(currentTime, this.curLineNum + 1)
         if (newCurLineNum > this.curLineNum) this.curLineNum = newCurLineNum - 1
         this._refresh()
-        return
       }
+      return
     }
 
     this.curLineNum = this._findCurLineNum(currentTime, this.curLineNum) - 1

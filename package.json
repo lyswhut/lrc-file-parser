@@ -2,21 +2,30 @@
   "name": "lrc-file-parser",
   "version": "2.3.2",
   "description": "Javascript-based lrc file parser",
-  "main": "./dist/lrc-file-parser.js",
   "publishConfig": {
     "access": "public"
   },
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+        "types": "./index.d.ts",
+        "import": "./index.js",
+        "default": "./index.cjs"
+    }
+  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env NODE_ENV=development webpack --config webpack.config.js",
-    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js"
+    "dev": "tsup --watch --dts",
+    "build": "tsup --dts",
+    "lint": "tsc",
+    "web": "rollup -c && rollup -c rollup.config.min.js"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lyswhut/lrc-file-parser.git"
   },
   "keywords": [
-    "javascript"
+    "javascript", "lrc", "web"
   ],
   "author": "lyswhut",
   "license": "MIT",
@@ -25,17 +34,22 @@
   },
   "homepage": "https://github.com/lyswhut/lrc-file-parser#readme",
   "devDependencies": {
-    "@babel/core": "^7.21.3",
-    "@babel/preset-env": "^7.20.2",
-    "babel-loader": "^9.1.2",
-    "cross-env": "^7.0.3",
-    "eslint": "^8.36.0",
+    "@babel/core": "^7.21.4",
+    "@babel/preset-env": "^7.21.4",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-terser": "^0.4.1",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "eslint": "^8.39.0",
     "eslint-config-standard": "^17.0.0",
     "eslint-plugin-import": "^2.27.5",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
-    "terser-webpack-plugin": "^5.3.7",
-    "webpack": "^5.76.2",
-    "webpack-cli": "^5.0.1"
+    "rollup": "^3.20.7",
+    "terser": "^5.17.1",
+    "tslib": "^2.5.0",
+    "tsup": "^6.7.0",
+    "typescript": "^5.0.4"
   }
 }

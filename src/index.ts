@@ -1,131 +1,51 @@
-const timeFieldExp = /^(?:\[[\d:.]+\])+/g
-const timeExp = /\d{1,3}(:\d{1,3}){0,2}(?:\.\d{1,3})/g
+/*!
+ * lrc-file-parser.js v2.3.2
+ * Author: lyswhut
+ * Github: https://github.com/lyswhut/lrc-file-parser
+ * License: MIT
+ */
 
-const tagRegMap = {
-  title: 'ti',
-  artist: 'ar',
-  album: 'al',
-  offset: 'offset',
-  by: 'by',
-}
+import {
+  type Lines,
+  type Options,
+  type LrcLinesMap,
+  type Tags,
+  type AvailableTags,
+  getNow,
+  timeoutTools,
+  parseExtendedLyric,
+  tagRegMap,
+  timeFieldExp,
+  timeExp,
+  formaterTimeLabel
+} from './utils'
 
-// eslint-disable-next-line no-undef
-const getNow = typeof performance == 'object' && performance.now ? performance.now.bind(performance) : Date.now.bind(Date)
-
-// const timeoutTools = {
-//   expected: 0,
-//   interval: 0,
-//   timeoutId: null,
-//   callback: null,
-//   step() {
-//     var dt = getNow() - this.expected // the drift (positive for overshooting)
-//     if (dt > this.interval) {
-//         // something really bad happened. Maybe the browser (tab) was inactive?
-//         // possibly special handling to avoid futile "catch up" run
-//     }
-//     // … // do what is to be done
-
-//     this.callback()
-
-//     this.expected += this.interval
-//     this.timeoutId = setTimeout(() => {
-//       this.step()
-//     }, Math.max(0, this.interval - dt)) // take into account drift
-//   },
-//   start(callback = () => {}, interval = 1000) {
-//     this.callback = callback
-//     this.interval = interval
-//     this.expected = getNow() + interval
-//     this.timeoutId = setTimeout(() => {
-//       this.step()
-//     } ,interval)
-//   },
-//   stop() {
-//     if (this.timeoutId == null) return
-//     clearTimeout(this.timeoutId)
-//     this.timeoutId = null
-//   }
-// }
-
-const timeoutTools = {
-  invokeTime: 0,
-  animationFrameId: null,
-  timeoutId: null,
-  callback: null,
-  thresholdTime: 200,
-
-  run() {
-    this.animationFrameId = window.requestAnimationFrame(() => {
-      this.animationFrameId = null
-      let diff = this.invokeTime - getNow()
-      // console.log('diff', diff)
-      if (diff > 0) {
-        if (diff < this.thresholdTime) return this.run()
-        return this.timeoutId = setTimeout(() => {
-          this.timeoutId = null
-          this.run()
-        }, diff - this.thresholdTime)
-      }
-
-      // console.log('diff', diff)
-      this.callback(diff)
-    })
-  },
-  start(callback = () => { }, timeout = 0) {
-    // console.log(timeout)
-    this.callback = callback
-    this.invokeTime = getNow() + timeout
-
-    this.run()
-  },
-  clear() {
-    if (this.animationFrameId) {
-      window.cancelAnimationFrame(this.animationFrameId)
-      this.animationFrameId = null
-    }
-    if (this.timeoutId) {
-      window.clearTimeout(this.timeoutId)
-      this.timeoutId = null
-    }
-  },
-}
-
-const t_rxp_1 = /^0+(\d+)/
-const t_rxp_2 = /:0+(\d+)/g
-const t_rxp_3 = /\.0+(\d+)/
-const formaterTimeLabel = (label) => {
-  return label.replace(t_rxp_1, '$1')
-    .replace(t_rxp_2, ':$1')
-    .replace(t_rxp_3, '.$1')
-}
-
-const parseExtendedLyric = (lrcLinesMap, extendedLyric) => {
-  const extendedLines = extendedLyric.split(/\r\n|\n|\r/)
-  for (let i = 0; i < extendedLines.length; i++) {
-    const line = extendedLines[i].trim()
-    let result = timeFieldExp.exec(line)
-    if (result) {
-      const timeField = result[0]
-      const text = line.replace(timeFieldExp, '').trim()
-      if (text) {
-        const times = timeField.match(timeExp)
-        if (times == null) continue
-        for (let time of times) {
-          const timeStr = formaterTimeLabel(time)
-          const targetLine = lrcLinesMap[timeStr]
-          if (targetLine) targetLine.extendedLyrics.push(text)
-        }
-      }
-    }
-  }
-}
-
-module.exports = class Lyric {
-  constructor({ lyric = '', extendedLyrics = [], offset = 150, playbackRate = 1, onPlay = function() { }, onSetLyric = function() { }, isRemoveBlankLine = true } = {}) {
+export default class Lyric {
+  lyric: string
+  extendedLyrics: string[]
+  tags: Tags
+  lines: Lines[]
+  onPlay: (line: number, text: string) => void
+  onSetLyric: (lines: Lines[]) => void
+  isPlay: boolean
+  curLineNum: number
+  maxLine: number
+  offset: number
+  _playbackRate: number
+  _performanceTime: number
+  _startTime: number
+  isRemoveBlankLine: boolean
+  constructor({ lyric = '', extendedLyrics = [], offset = 150, playbackRate = 1, onPlay = function () { }, onSetLyric = function () { }, isRemoveBlankLine = true } = {} as Options) {
     this.lyric = lyric
     this.extendedLyrics = extendedLyrics
-    this.tags = {}
-    this.lines = null
+    this.tags = {
+      title: "",
+      artist: "",
+      album: "",
+      offset: "",
+      by: ""
+    }
+    this.lines = []
     this.onPlay = onPlay
     this.onSetLyric = onSetLyric
     this.isPlay = false
@@ -144,17 +64,23 @@ module.exports = class Lyric {
     if (this.extendedLyrics == null) this.extendedLyrics = []
     this._initTag()
     this._initLines()
-    this.onSetLyric(this.lines)
+    this.onSetLyric(this.lines as Lines[])
   }
 
   _initTag() {
-    this.tags = {}
+    this.tags = {
+      title: "",
+      artist: "",
+      album: "",
+      offset: "",
+      by: ""
+    }
     for (let tag in tagRegMap) {
-      const matches = this.lyric.match(new RegExp(`\\[${tagRegMap[tag]}:([^\\]]*)]`, 'i'))
-      this.tags[tag] = (matches && matches[1]) || ''
+      const matches = this.lyric.match(new RegExp(`\\[${tagRegMap[tag as AvailableTags]}:([^\\]]*)]`, 'i'))
+      this.tags[tag as AvailableTags] = (matches && matches[1]) || ''
     }
     if (this.tags.offset) {
-      let offset = parseInt(this.tags.offset)
+      let offset = parseInt(this.tags.offset as string)
       this.tags.offset = Number.isNaN(offset) ? 0 : offset
     } else {
       this.tags.offset = 0
@@ -164,7 +90,7 @@ module.exports = class Lyric {
   _initLines() {
     this.lines = []
     const lines = this.lyric.split(/\r\n|\n|\r/)
-    const linesMap = {}
+    const linesMap: LrcLinesMap = {}
     const length = lines.length
     for (let i = 0; i < length; i++) {
       const line = lines[i].trim()
@@ -187,7 +113,7 @@ module.exports = class Lyric {
             if (timeArr[2].indexOf('.') > -1) timeArr.splice(2, 1, ...timeArr[2].split('.'))
 
             linesMap[timeStr] = {
-              time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
+              time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || "0"),
               text,
               extendedLyrics: [],
             }
@@ -208,9 +134,9 @@ module.exports = class Lyric {
     return (getNow() - this._performanceTime) * this._playbackRate + this._startTime
   }
 
-  _findCurLineNum(curTime, startIndex = 0) {
+  _findCurLineNum(curTime: number, startIndex = 0) {
     if (curTime <= 0) return 0
-    const length = this.lines.length
+    const length = this.lines?.length || 0
     for (let index = startIndex; index < length; index++) if (curTime <= this.lines[index].time) return index === 0 ? 0 : index - 1
     return length - 1
   }
@@ -254,12 +180,16 @@ module.exports = class Lyric {
     this._refresh()
   }
 
+  /**
+   * Play lyric
+   * @param time play time, unit: ms
+   */
   play(curTime = 0) {
     if (!this.lines.length) return
     this.pause()
     this.isPlay = true
 
-    this._performanceTime = getNow() - parseInt(this.tags.offset + this.offset)
+    this._performanceTime = getNow() - parseInt((this.tags.offset as number + this.offset).toString())
     this._startTime = curTime
     // this._offset = this.tags.offset + this.offset
 
@@ -268,6 +198,9 @@ module.exports = class Lyric {
     this._refresh()
   }
 
+  /**
+   * Pause lyric
+   */
   pause() {
     if (!this.isPlay) return
     this.isPlay = false
@@ -280,14 +213,23 @@ module.exports = class Lyric {
     }
   }
 
-  setPlaybackRate(playbackRate) {
+  /**
+   * Set playback rate
+   * @param playbackRate playback rate
+   */
+  setPlaybackRate(playbackRate: number) {
     this._playbackRate = playbackRate
     if (!this.lines.length) return
     if (!this.isPlay) return
     this.play(this._currentTime())
   }
 
-  setLyric(lyric, extendedLyrics) {
+  /**
+   * Set lyric
+   * @param lyricStr lyric file text
+   * @param extendedLyricStrs extended lyric file text array, for example lyric translations
+   */
+  setLyric(lyric: string, extendedLyrics: string[] = []) {
     // console.log(extendedLyrics)
     if (this.isPlay) this.pause()
     this.lyric = lyric

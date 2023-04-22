@@ -10,7 +10,7 @@ A lrc file parser based javascript
 
 ```bash
 # install
-npm install lrc-file-parser -S
+npm install lrc-file-parser
 ```
 
 ```js

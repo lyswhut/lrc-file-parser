@@ -68,7 +68,7 @@ export type Options = {
   /**
    * extended lyrics 
    */
-  extendedLyrics: string[]
+  extendedLyrics?: string[]
 }
 
 export type TT = {

@@ -1,5 +1,5 @@
 /*!
- * lrc-file-parser.js v2.3.1
+ * lrc-file-parser.js v2.3.2
  * Author: lyswhut
  * Github: https://github.com/lyswhut/lrc-file-parser
  * License: MIT
@@ -34,9 +34,7 @@ function _unsupportedIterableToArray(o, minLen) { if (!o) return; if (typeof o =
 function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len = arr.length; for (var i = 0, arr2 = new Array(len); i < len; i++) { arr2[i] = arr[i]; } return arr2; }
 function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
 var timeFieldExp = /^(?:\[[\d:.]+\])+/g;
-var timeExp = /[\d:.]+/g;
-var timeLabelRxp = /^(\[[\d:]+\.)0+(\d+\])/;
-var timeLabelFixRxp = /(?:\.0+|0+)$/;
+var timeExp = /\d{1,3}(:\d{1,3}){0,2}(?:\.\d{1,3})/g;
 var tagRegMap = {
   title: 'ti',
   artist: 'ar',
@@ -126,6 +124,12 @@ var timeoutTools = {
     }
   }
 };
+var t_rxp_1 = /^0+(\d+)/;
+var t_rxp_2 = /:0+(\d+)/g;
+var t_rxp_3 = /\.0+(\d+)/;
+var formaterTimeLabel = function formaterTimeLabel(label) {
+  return label.replace(t_rxp_1, '$1').replace(t_rxp_2, ':$1').replace(t_rxp_3, '.$1');
+};
 var parseExtendedLyric = function parseExtendedLyric(lrcLinesMap, extendedLyric) {
   var extendedLines = extendedLyric.split(/\r\n|\n|\r/);
   for (var i = 0; i < extendedLines.length; i++) {
@@ -142,8 +146,7 @@ var parseExtendedLyric = function parseExtendedLyric(lrcLinesMap, extendedLyric)
         try {
           for (_iterator.s(); !(_step = _iterator.n()).done;) {
             var time = _step.value;
-            if (time.includes('.')) time = time.replace(timeLabelRxp, '$1$2');else time += '.0';
-            var timeStr = time.replace(timeLabelFixRxp, '');
+            var timeStr = formaterTimeLabel(time);
             var targetLine = lrcLinesMap[timeStr];
             if (targetLine) targetLine.extendedLyrics.push(text);
           }
@@ -235,18 +238,16 @@ module.exports = /*#__PURE__*/function () {
             try {
               for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
                 var time = _step2.value;
-                if (time.includes('.')) time = time.replace(timeLabelRxp, '$1$2');else time += '.0';
-                var timeStr = time.replace(timeLabelFixRxp, '');
+                var timeStr = formaterTimeLabel(time);
                 if (linesMap[timeStr]) {
                   linesMap[timeStr].extendedLyrics.push(text);
                   continue;
                 }
                 var timeArr = timeStr.split(':');
-                if (timeArr.length < 3) timeArr.unshift(0);
-                if (timeArr[2].indexOf('.') > -1) {
-                  timeArr.push.apply(timeArr, _toConsumableArray(timeArr[2].split('.')));
-                  timeArr.splice(2, 1);
+                if (timeArr.length > 3) continue;else if (timeArr.length < 3) for (var _i = 3 - timeArr.length; _i--;) {
+                  timeArr.unshift('0');
                 }
+                if (timeArr[2].indexOf('.') > -1) timeArr.splice.apply(timeArr, [2, 1].concat(_toConsumableArray(timeArr[2].split('.'))));
                 linesMap[timeStr] = {
                   time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || 0),
                   text: text,

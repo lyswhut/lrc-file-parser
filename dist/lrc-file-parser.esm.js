@@ -1,5 +1,3 @@
-'use strict';
-
 const timeFieldExp = /^(?:\[[\d:.]+\])+/g;
 const timeExp = /\d{1,3}(:\d{1,3}){0,2}(?:\.\d{1,3})/g;
 const tagRegMap = {
@@ -320,4 +318,4 @@ class Lyric {
     }
 }
 
-module.exports = Lyric;
+export { Lyric as default };

@@ -1,0 +1,13 @@
+.github
+.babelrc
+.eslintrc
+.eslintrc.js
+.editorconfig
+CHANGELOG.md
+package-lock.json
+pnpm-lock.yaml
+tsconfig.json
+rollup.config.js
+rollup.config.iife.js
+src
+package-lock.json

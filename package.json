@@ -1,22 +1,33 @@
 {
   "name": "lrc-file-parser",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "description": "Javascript-based lrc file parser",
   "main": "./dist/lrc-file-parser.js",
+  "module": "./dist/index.esm.js",
+  "types": "./dist/index.d.ts",
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "cross-env NODE_ENV=development webpack --config webpack.config.js",
-    "build": "cross-env NODE_ENV=production webpack --config webpack.config.js"
+    "build": "rollup -c && rollup -c rollup.config.iife.js"
+  },
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "default": "./dist/index.esm.js"
+    }
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/lyswhut/lrc-file-parser.git"
   },
   "keywords": [
-    "javascript"
+    "javascript",
+    "lrc",
+    "web"
   ],
   "author": "lyswhut",
   "license": "MIT",
@@ -25,17 +36,18 @@
   },
   "homepage": "https://github.com/lyswhut/lrc-file-parser#readme",
   "devDependencies": {
-    "@babel/core": "^7.21.3",
-    "@babel/preset-env": "^7.20.2",
-    "babel-loader": "^9.1.2",
-    "cross-env": "^7.0.3",
-    "eslint": "^8.36.0",
-    "eslint-config-standard": "^17.0.0",
-    "eslint-plugin-import": "^2.27.5",
-    "eslint-plugin-node": "^11.1.0",
-    "eslint-plugin-promise": "^6.1.1",
-    "terser-webpack-plugin": "^5.3.7",
-    "webpack": "^5.76.2",
-    "webpack-cli": "^5.0.1"
+    "@babel/core": "^7.21.4",
+    "@babel/plugin-proposal-class-properties": "^7.18.6",
+    "@babel/plugin-proposal-object-rest-spread": "^7.20.7",
+    "@babel/preset-env": "^7.21.4",
+    "@rollup/plugin-babel": "^6.0.3",
+    "@rollup/plugin-commonjs": "^24.1.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-terser": "^0.4.1",
+    "@rollup/plugin-typescript": "^11.1.0",
+    "@tsconfig/recommended": "^1.0.2",
+    "eslint-config-standard-with-typescript": "^34.0.1",
+    "rollup": "^3.20.7",
+    "typescript": "^5.0.4"
   }
 }

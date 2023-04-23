@@ -208,7 +208,7 @@ export default class Lyric {
     this.play(this._currentTime())
   }
 
-  setLyric(lyric: NonNullableOptions['lyric'], extendedLyrics: NonNullableOptions['extendedLyrics']) {
+  setLyric(lyric: NonNullableOptions['lyric'], extendedLyrics: NonNullableOptions['extendedLyrics']=[]) {
     // console.log(extendedLyrics)
     if (this.isPlay) this.pause()
     this.lyric = lyric

@@ -3,7 +3,7 @@
   "version": "2.4.0",
   "description": "Javascript-based lrc file parser",
   "main": "./dist/lrc-file-parser.js",
-  "module": "./dist/index.esm.js",
+  "module": "./dist/lrc-file-parser.esm.js",
   "types": "./dist/index.d.ts",
   "publishConfig": {
     "access": "public"
@@ -16,8 +16,8 @@
     "./package.json": "./package.json",
     ".": {
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.js",
-      "default": "./dist/index.esm.js"
+      "require": "./dist/lrc-file-parser.js",
+      "default": "./dist/lrc-file-parser.esm.js"
     }
   },
   "repository": {
@@ -51,3 +51,4 @@
     "typescript": "^5.0.4"
   }
 }
+

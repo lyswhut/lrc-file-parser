@@ -6,6 +6,7 @@ type NonNullableOptions = Required<Options>
 interface Tags extends Record<Exclude<TagMapKeys, 'offset'>, string> {
   offset: number
 }
+export type Lines = Line[]
 
 const tags = {
   title: '',
@@ -19,7 +20,7 @@ export default class Lyric {
   lyric: NonNullableOptions['lyric']
   extendedLyrics: NonNullableOptions['extendedLyrics']
   tags: Tags
-  lines: Line[]
+  lines: Lines
   onPlay: NonNullableOptions['onPlay']
   onSetLyric: NonNullableOptions['onSetLyric']
   isPlay: boolean
@@ -27,9 +28,9 @@ export default class Lyric {
   maxLine: number
   offset: NonNullableOptions['offset']
   isRemoveBlankLine: NonNullableOptions['isRemoveBlankLine']
-  _playbackRate: NonNullableOptions['playbackRate']
-  _performanceTime: number
-  _startTime: number
+  private _playbackRate: NonNullableOptions['playbackRate']
+  private _performanceTime: number
+  private _startTime: number
 
   constructor({
     lyric = '',
@@ -57,7 +58,7 @@ export default class Lyric {
     this._init()
   }
 
-  _init() {
+  private _init() {
     if (this.lyric == null) this.lyric = ''
     if (this.extendedLyrics == null) this.extendedLyrics = []
     this._initTag()
@@ -65,7 +66,7 @@ export default class Lyric {
     this.onSetLyric(this.lines)
   }
 
-  _initTag() {
+  private _initTag() {
     this.tags = { ...tags }
     for (let tag of Object.keys(tags) as TagMapKeys[]) {
       const matches = this.lyric.match(new RegExp(`\\[${tagRegMap[tag]}:([^\\]]*)]`, 'i'))
@@ -82,7 +83,7 @@ export default class Lyric {
     }
   }
 
-  _initLines() {
+  private _initLines() {
     this.lines = []
     const lines = this.lyric.split(/\r\n|\n|\r/)
     const linesMap: Record<string, Line> = {}
@@ -125,23 +126,23 @@ export default class Lyric {
     this.maxLine = this.lines.length - 1
   }
 
-  _currentTime() {
+  private _currentTime() {
     return (getNow() - this._performanceTime) * this._playbackRate + this._startTime
   }
 
-  _findCurLineNum(curTime: number, startIndex = 0) {
+  private _findCurLineNum(curTime: number, startIndex = 0) {
     if (curTime <= 0) return 0
     const length = this.lines.length
     for (let index = startIndex; index < length; index++) if (curTime <= this.lines[index].time) return index === 0 ? 0 : index - 1
     return length - 1
   }
 
-  _handleMaxLine() {
+  private _handleMaxLine() {
     this.onPlay(this.curLineNum, this.lines[this.curLineNum].text)
     this.pause()
   }
 
-  _refresh() {
+  private _refresh() {
     this.curLineNum++
     // console.log('curLineNum time', this.lines[this.curLineNum].time)
     if (this.curLineNum >= this.maxLine) { this._handleMaxLine(); return }
@@ -175,6 +176,10 @@ export default class Lyric {
     this._refresh()
   }
 
+  /**
+   * Play lyric
+   * @param time play time, unit: ms
+   */
   play(curTime = 0) {
     if (!this.lines.length) return
     this.pause()
@@ -189,6 +194,9 @@ export default class Lyric {
     this._refresh()
   }
 
+  /**
+   * Pause lyric
+   */
   pause() {
     if (!this.isPlay) return
     this.isPlay = false
@@ -201,6 +209,10 @@ export default class Lyric {
     }
   }
 
+  /**
+   * Set playback rate
+   * @param playbackRate playback rate
+   */
   setPlaybackRate(playbackRate: NonNullableOptions['playbackRate']) {
     this._playbackRate = playbackRate
     if (!this.lines.length) return
@@ -208,7 +220,12 @@ export default class Lyric {
     this.play(this._currentTime())
   }
 
-  setLyric(lyric: NonNullableOptions['lyric'], extendedLyrics: NonNullableOptions['extendedLyrics']) {
+  /**
+   * Set lyric
+   * @param lyricStr lyric file text
+   * @param extendedLyricStrs extended lyric file text array, for example lyric translations
+   */
+  setLyric(lyric: NonNullableOptions['lyric'], extendedLyrics: NonNullableOptions['extendedLyrics'] = []) {
     // console.log(extendedLyrics)
     if (this.isPlay) this.pause()
     this.lyric = lyric
@@ -216,3 +233,5 @@ export default class Lyric {
     this._init()
   }
 }
+
+export type * from '../types/common'

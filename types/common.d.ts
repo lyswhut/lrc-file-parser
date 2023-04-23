@@ -15,6 +15,8 @@ export declare interface Line {
   extendedLyrics: string[]
 }
 
+export declare type Lines = Line[]
+
 export declare interface Options {
   /**
    * Listening play event
@@ -27,7 +29,7 @@ export declare interface Options {
    * listening lyrics seting event
    * @param lines array of all lyric text
    */
-  onSetLyric?: (lines: Line[]) => void
+  onSetLyric?: (lines: Lines) => void
 
   /**
    * offset time(ms), default is 150 ms
@@ -54,30 +56,3 @@ export declare interface Options {
    */
   extendedLyrics?: string[]
 }
-
-// export declare class Lyric {
-//   constructor(options: Options)
-//   /**
-//    * Set lyric
-//    * @param lyricStr lyric file text
-//    * @param extendedLyricStrs extended lyric file text array, for example lyric translations
-//    */
-//   setLyric(lyricStr: String, extendedLyricStrs?: string[]): void
-
-//   /**
-//    * Play lyric
-//    * @param time play time, unit: ms
-//    */
-//   play(time: number): void
-
-//   /**
-//    * Pause lyric
-//    */
-//   pause(): void
-
-//   /**
-//    * Set playback rate
-//    * @param playbackRate playback rate
-//    */
-//   setPlaybackRate(playbackRate: number): void
-// }

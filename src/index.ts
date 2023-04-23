@@ -1,4 +1,4 @@
-import type { Line, Options } from '../types/common'
+import type { Line, Lines, Options } from '../types/common'
 import { formatTimeLabel, getNow, noop, parseExtendedLyric, tagRegMap, timeExp, timeFieldExp, timeoutTools } from './utils'
 
 type TagMapKeys = keyof typeof tagRegMap
@@ -6,7 +6,6 @@ type NonNullableOptions = Required<Options>
 interface Tags extends Record<Exclude<TagMapKeys, 'offset'>, string> {
   offset: number
 }
-export type Lines = Line[]
 
 const tags = {
   title: '',

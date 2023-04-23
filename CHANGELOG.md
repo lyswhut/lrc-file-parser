@@ -6,6 +6,10 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.4.1](https://github.com/lyswhut/lrc-file-parser/compare/v2.4.0...v2.4.1) - 2023-04-23
+
+- Fix export
+
 ## [2.4.0](https://github.com/lyswhut/lrc-file-parser/compare/v2.3.2...v2.4.0) - 2023-04-23
 
 - From Js to Typescript + Modernize the build system (<https://github.com/lyswhut/lrc-file-parser/pull/15>, Thanks @luxluth)

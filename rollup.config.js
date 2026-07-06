@@ -18,7 +18,6 @@ export default {
   plugins: [
     typescript({
       tsconfig: 'tsconfig.json',
-      outDir: './',
     }),
     resolve(),
     commonjs(),

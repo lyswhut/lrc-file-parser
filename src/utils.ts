@@ -3,6 +3,7 @@ import type { Line } from '../types/common'
 
 export const timeFieldExp = /^(?:\[[\d:.]+\])+/g
 export const timeExp = /\d{1,3}(:\d{1,3}){0,2}(?:\.\d{1,3})/g
+export const msTimeRxp = /\[\d{1,3}(:\d{1,3}){0,2}\.\d{3}]/
 
 export type LyricMap = Map<string, string[]>
 

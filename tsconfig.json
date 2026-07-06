@@ -12,9 +12,8 @@
     // "noImplicitReturns": false,
     "resolveJsonModule": true,
     
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["./*"],
+      "@/*": ["./src/*"],
     },
   },
   "include": ["src/**/*", "types"],

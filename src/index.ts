@@ -1,5 +1,5 @@
 import type { Line, Lines, Options } from '../types/common'
-import { formatTimeLabel, getNow, noop, parseExtendedLyric, tagRegMap, timeExp, timeFieldExp, timeoutTools } from './utils'
+import { formatTimeLabel, getNow, msTimeRxp, noop, parseExtendedLyric, tagRegMap, timeExp, timeFieldExp, timeoutTools } from './utils'
 
 type TagMapKeys = keyof typeof tagRegMap
 type NonNullableOptions = Required<Options>
@@ -84,6 +84,7 @@ export default class Lyric {
 
   private _initLines() {
     this.lines = []
+    const isMsTime = msTimeRxp.test(this.lyric)
     const lines = this.lyric.split(/\r\n|\n|\r/)
     const linesMap: Record<string, Line> = {}
     const length = lines.length
@@ -106,9 +107,10 @@ export default class Lyric {
             if (timeArr.length > 3) continue
             else if (timeArr.length < 3) for (let i = 3 - timeArr.length; i--;) timeArr.unshift('0')
             if (timeArr[2].includes('.')) timeArr.splice(2, 1, ...timeArr[2].split('.'))
+            const msTime = timeArr[3] || '0'
 
             linesMap[timeStr] = {
-              time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || '0'),
+              time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(isMsTime ? msTime : msTime.padEnd(3, '0')),
               text,
               extendedLyrics: [],
             }

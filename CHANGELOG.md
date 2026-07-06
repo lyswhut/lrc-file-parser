@@ -6,6 +6,10 @@ Project versioning adheres to [Semantic Versioning](http://semver.org/).
 Commit convention is based on [Conventional Commits](http://conventionalcommits.org).
 Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
+## [2.4.2](https://github.com/lyswhut/lrc-file-parser/compare/v2.4.1...v2.4.2) - 2026-07-06
+
+- Fixed the time parsing logic
+
 ## [2.4.1](https://github.com/lyswhut/lrc-file-parser/compare/v2.4.0...v2.4.1) - 2023-04-23
 
 - Fix export

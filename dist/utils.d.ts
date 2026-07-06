@@ -1,6 +1,7 @@
 import type { Line } from '../types/common';
 export declare const timeFieldExp: RegExp;
 export declare const timeExp: RegExp;
+export declare const msTimeRxp: RegExp;
 export type LyricMap = Map<string, string[]>;
 export declare const tagRegMap: {
     readonly title: "ti";
@@ -9,7 +10,7 @@ export declare const tagRegMap: {
     readonly offset: "offset";
     readonly by: "by";
 };
-export declare const getNow: () => number;
+export declare const getNow: () => DOMHighResTimeStamp;
 export declare const noop: () => void;
 export declare const timeoutTools: {
     invokeTime: number;

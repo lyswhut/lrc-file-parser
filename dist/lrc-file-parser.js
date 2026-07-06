@@ -2,6 +2,7 @@
 
 const timeFieldExp = /^(?:\[[\d:.]+\])+/g;
 const timeExp = /\d{1,3}(:\d{1,3}){0,2}(?:\.\d{1,3})/g;
+const msTimeRxp = /\[\d{1,3}(:\d{1,3}){0,2}\.\d{3}]/;
 const tagRegMap = {
     title: 'ti',
     artist: 'ar',
@@ -184,6 +185,7 @@ class Lyric {
     }
     _initLines() {
         this.lines = [];
+        const isMsTime = msTimeRxp.test(this.lyric);
         const lines = this.lyric.split(/\r\n|\n|\r/);
         const linesMap = {};
         const length = lines.length;
@@ -211,8 +213,9 @@ class Lyric {
                                 timeArr.unshift('0');
                         if (timeArr[2].includes('.'))
                             timeArr.splice(2, 1, ...timeArr[2].split('.'));
+                        const msTime = timeArr[3] || '0';
                         linesMap[timeStr] = {
-                            time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(timeArr[3] || '0'),
+                            time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(isMsTime ? msTime : msTime.padEnd(3, '0')),
                             text,
                             extendedLyrics: [],
                         };
@@ -278,6 +281,10 @@ class Lyric {
         this.curLineNum = this._findCurLineNum(currentTime, this.curLineNum) - 1;
         this._refresh();
     }
+    /**
+     * Play lyric
+     * @param time play time, unit: ms
+     */
     play(curTime = 0) {
         if (!this.lines.length)
             return;
@@ -289,6 +296,9 @@ class Lyric {
         this.curLineNum = this._findCurLineNum(this._currentTime()) - 1;
         this._refresh();
     }
+    /**
+     * Pause lyric
+     */
     pause() {
         if (!this.isPlay)
             return;
@@ -302,6 +312,10 @@ class Lyric {
             this.onPlay(curLineNum, this.lines[curLineNum].text);
         }
     }
+    /**
+     * Set playback rate
+     * @param playbackRate playback rate
+     */
     setPlaybackRate(playbackRate) {
         this._playbackRate = playbackRate;
         if (!this.lines.length)
@@ -310,7 +324,12 @@ class Lyric {
             return;
         this.play(this._currentTime());
     }
-    setLyric(lyric, extendedLyrics) {
+    /**
+     * Set lyric
+     * @param lyricStr lyric file text
+     * @param extendedLyricStrs extended lyric file text array, for example lyric translations
+     */
+    setLyric(lyric, extendedLyrics = []) {
         // console.log(extendedLyrics)
         if (this.isPlay)
             this.pause();

@@ -32,7 +32,7 @@ var lrc = new Lyric({
     console.log(line, text) // line is line number of current play
                             // text is lyric text of current play line
   },
-  onSetLyric: function (lines) { // listening lyrics seting event
+  onSetLyric: function (lines, offset, globalOffset) { // listening lyrics seting event
     console.log(lines) // lines is array of all lyric text
   },
   globalOffset: 0, // offset time(ms)

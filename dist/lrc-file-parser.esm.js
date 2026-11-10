@@ -133,12 +133,13 @@ class Lyric {
     isPlay;
     curLineNum;
     maxLine;
-    offset;
     isRemoveBlankLine;
+    globalOffset;
+    offset = 0;
     _playbackRate;
     _performanceTime;
     _startTime;
-    constructor({ lyric = '', extendedLyrics = [], offset = 150, playbackRate = 1, onPlay = noop, onSetLyric = noop, isRemoveBlankLine = true, }) {
+    constructor({ lyric = '', extendedLyrics = [], globalOffset = 0, playbackRate = 1, onPlay = noop, onSetLyric = noop, isRemoveBlankLine = true, }) {
         this.lyric = lyric;
         this.extendedLyrics = extendedLyrics;
         this.tags = { ...tags };
@@ -148,7 +149,7 @@ class Lyric {
         this.isPlay = false;
         this.curLineNum = 0;
         this.maxLine = 0;
-        this.offset = offset;
+        this.globalOffset = globalOffset;
         this.isRemoveBlankLine = isRemoveBlankLine;
         this._playbackRate = playbackRate;
         this._performanceTime = 0;
@@ -162,7 +163,7 @@ class Lyric {
             this.extendedLyrics = [];
         this._initTag();
         this._initLines();
-        this.onSetLyric(this.lines);
+        this.onSetLyric(this.lines, this.offset, this.globalOffset);
     }
     _initTag() {
         this.tags = { ...tags };
@@ -175,10 +176,12 @@ class Lyric {
         }
         if (this.tags.offset) {
             let offset = parseInt(this.tags.offset);
-            this.tags.offset = Number.isNaN(offset) ? 0 : offset;
+            if (Number.isNaN(offset))
+                offset = 0;
+            this.offset = offset;
         }
         else {
-            this.tags.offset = 0;
+            this.offset = 0;
         }
     }
     _initLines() {
@@ -211,9 +214,14 @@ class Lyric {
                                 timeArr.unshift('0');
                         if (timeArr[2].includes('.'))
                             timeArr.splice(2, 1, ...timeArr[2].split('.'));
-                        const msTime = timeArr[3] || '0';
+                        let msTime = timeArr[3] || '0';
+                        if (!isMsTime) {
+                            if (msTime.length == 1)
+                                msTime = '0' + msTime;
+                            msTime = msTime + '0';
+                        }
                         linesMap[timeStr] = {
-                            time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(isMsTime ? msTime : msTime.padEnd(3, '0')),
+                            time: parseInt(timeArr[0]) * 60 * 60 * 1000 + parseInt(timeArr[1]) * 60 * 1000 + parseInt(timeArr[2]) * 1000 + parseInt(msTime),
                             text,
                             extendedLyrics: [],
                         };
@@ -229,8 +237,14 @@ class Lyric {
         });
         this.maxLine = this.lines.length - 1;
     }
-    _currentTime() {
+    getOffsetTime() {
+        return this.globalOffset + this.offset;
+    }
+    rawCurrentTime() {
         return (getNow() - this._performanceTime) * this._playbackRate + this._startTime;
+    }
+    currentTime() {
+        return this.rawCurrentTime() + this.getOffsetTime();
     }
     _findCurLineNum(curTime, startIndex = 0) {
         if (curTime <= 0)
@@ -253,7 +267,7 @@ class Lyric {
             return;
         }
         let curLine = this.lines[this.curLineNum];
-        const currentTime = this._currentTime();
+        const currentTime = this.currentTime();
         const driftTime = currentTime - curLine.time;
         if (driftTime >= 0 || this.curLineNum === 0) {
             let nextLine = this.lines[this.curLineNum + 1];
@@ -288,10 +302,9 @@ class Lyric {
             return;
         this.pause();
         this.isPlay = true;
-        this._performanceTime = getNow() - Math.trunc(this.tags.offset + this.offset);
+        this._performanceTime = getNow();
         this._startTime = curTime;
-        // this._offset = this.tags.offset + this.offset
-        this.curLineNum = this._findCurLineNum(this._currentTime()) - 1;
+        this.curLineNum = this._findCurLineNum(this.currentTime()) - 1;
         this._refresh();
     }
     /**
@@ -304,7 +317,7 @@ class Lyric {
         timeoutTools.clear();
         if (this.curLineNum === this.maxLine)
             return;
-        const curLineNum = this._findCurLineNum(this._currentTime());
+        const curLineNum = this._findCurLineNum(this.currentTime());
         if (this.curLineNum !== curLineNum) {
             this.curLineNum = curLineNum;
             this.onPlay(curLineNum, this.lines[curLineNum].text);
@@ -315,12 +328,37 @@ class Lyric {
      * @param playbackRate playback rate
      */
     setPlaybackRate(playbackRate) {
+        const currentTime = this.rawCurrentTime();
         this._playbackRate = playbackRate;
         if (!this.lines.length)
             return;
         if (!this.isPlay)
             return;
-        this.play(this._currentTime());
+        this.play(currentTime);
+    }
+    /**
+     * Set offset time(ms)
+     * @param offset offset time(ms)
+     */
+    setOffset(offset) {
+        this.offset = offset;
+        if (!this.lines.length)
+            return;
+        if (!this.isPlay)
+            return;
+        this.play(this.rawCurrentTime());
+    }
+    /**
+     * Set global offset time(ms)
+     * @param globalOffset global offset time(ms)
+     */
+    setGlobalOffset(globalOffset) {
+        this.globalOffset = globalOffset;
+        if (!this.lines.length)
+            return;
+        if (!this.isPlay)
+            return;
+        this.play(this.rawCurrentTime());
     }
     /**
      * Set lyric
@@ -331,8 +369,8 @@ class Lyric {
         // console.log(extendedLyrics)
         if (this.isPlay)
             this.pause();
-        this.lyric = lyric;
-        this.extendedLyrics = extendedLyrics;
+        this.lyric = lyric.replace(/\xA0/g, ' ');
+        this.extendedLyrics = extendedLyrics.map((l) => l.replace(/\xA0/g, ' '));
         this._init();
     }
 }

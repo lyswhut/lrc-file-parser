@@ -15,16 +15,19 @@ export default class Lyric {
     isPlay: boolean;
     curLineNum: number;
     maxLine: number;
-    offset: NonNullableOptions['offset'];
     isRemoveBlankLine: NonNullableOptions['isRemoveBlankLine'];
+    private globalOffset;
+    private offset;
     private _playbackRate;
     private _performanceTime;
     private _startTime;
-    constructor({ lyric, extendedLyrics, offset, playbackRate, onPlay, onSetLyric, isRemoveBlankLine, }: Options);
+    constructor({ lyric, extendedLyrics, globalOffset, playbackRate, onPlay, onSetLyric, isRemoveBlankLine, }: Options);
     private _init;
     private _initTag;
     private _initLines;
-    private _currentTime;
+    private getOffsetTime;
+    private rawCurrentTime;
+    private currentTime;
     private _findCurLineNum;
     private _handleMaxLine;
     private _refresh;
@@ -42,6 +45,16 @@ export default class Lyric {
      * @param playbackRate playback rate
      */
     setPlaybackRate(playbackRate: NonNullableOptions['playbackRate']): void;
+    /**
+     * Set offset time(ms)
+     * @param offset offset time(ms)
+     */
+    setOffset(offset: number): void;
+    /**
+     * Set global offset time(ms)
+     * @param globalOffset global offset time(ms)
+     */
+    setGlobalOffset(globalOffset: number): void;
     /**
      * Set lyric
      * @param lyricStr lyric file text

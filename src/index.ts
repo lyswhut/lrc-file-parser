@@ -25,8 +25,9 @@ export default class Lyric {
   isPlay: boolean
   curLineNum: number
   maxLine: number
-  offset: NonNullableOptions['offset']
   isRemoveBlankLine: NonNullableOptions['isRemoveBlankLine']
+  private globalOffset: number
+  private offset = 0
   private _playbackRate: NonNullableOptions['playbackRate']
   private _performanceTime: number
   private _startTime: number
@@ -34,7 +35,7 @@ export default class Lyric {
   constructor({
     lyric = '',
     extendedLyrics = [],
-    offset = 150,
+    globalOffset = 0,
     playbackRate = 1,
     onPlay = noop,
     onSetLyric = noop,
@@ -49,7 +50,7 @@ export default class Lyric {
     this.isPlay = false
     this.curLineNum = 0
     this.maxLine = 0
-    this.offset = offset
+    this.globalOffset = globalOffset
     this.isRemoveBlankLine = isRemoveBlankLine
     this._playbackRate = playbackRate
     this._performanceTime = 0
@@ -62,7 +63,7 @@ export default class Lyric {
     if (this.extendedLyrics == null) this.extendedLyrics = []
     this._initTag()
     this._initLines()
-    this.onSetLyric(this.lines)
+    this.onSetLyric(this.lines, this.offset, this.globalOffset)
   }
 
   private _initTag() {
@@ -76,9 +77,10 @@ export default class Lyric {
     }
     if (this.tags.offset) {
       let offset = parseInt(this.tags.offset as unknown as string)
-      this.tags.offset = Number.isNaN(offset) ? 0 : offset
+      if (Number.isNaN(offset)) offset = 0
+      this.offset = offset
     } else {
-      this.tags.offset = 0
+      this.offset = 0
     }
   }
 
@@ -127,8 +129,16 @@ export default class Lyric {
     this.maxLine = this.lines.length - 1
   }
 
-  private _currentTime() {
+  private getOffsetTime() {
+    return this.globalOffset + this.offset
+  }
+
+  private rawCurrentTime() {
     return (getNow() - this._performanceTime) * this._playbackRate + this._startTime
+  }
+
+  private currentTime() {
+    return this.rawCurrentTime() + this.getOffsetTime()
   }
 
   private _findCurLineNum(curTime: number, startIndex = 0) {
@@ -150,7 +160,7 @@ export default class Lyric {
 
     let curLine = this.lines[this.curLineNum]
 
-    const currentTime = this._currentTime()
+    const currentTime = this.currentTime()
     const driftTime = currentTime - curLine.time
 
     if (driftTime >= 0 || this.curLineNum === 0) {
@@ -186,11 +196,10 @@ export default class Lyric {
     this.pause()
     this.isPlay = true
 
-    this._performanceTime = getNow() - Math.trunc(this.tags.offset + this.offset)
+    this._performanceTime = getNow()
     this._startTime = curTime
-    // this._offset = this.tags.offset + this.offset
 
-    this.curLineNum = this._findCurLineNum(this._currentTime()) - 1
+    this.curLineNum = this._findCurLineNum(this.currentTime()) - 1
 
     this._refresh()
   }
@@ -203,7 +212,7 @@ export default class Lyric {
     this.isPlay = false
     timeoutTools.clear()
     if (this.curLineNum === this.maxLine) return
-    const curLineNum = this._findCurLineNum(this._currentTime())
+    const curLineNum = this._findCurLineNum(this.currentTime())
     if (this.curLineNum !== curLineNum) {
       this.curLineNum = curLineNum
       this.onPlay(curLineNum, this.lines[curLineNum].text)
@@ -215,10 +224,33 @@ export default class Lyric {
    * @param playbackRate playback rate
    */
   setPlaybackRate(playbackRate: NonNullableOptions['playbackRate']) {
+    const currentTime = this.rawCurrentTime()
     this._playbackRate = playbackRate
     if (!this.lines.length) return
     if (!this.isPlay) return
-    this.play(this._currentTime())
+    this.play(currentTime)
+  }
+
+  /**
+   * Set offset time(ms)
+   * @param offset offset time(ms)
+   */
+  setOffset(offset: number) {
+    this.offset = offset
+    if (!this.lines.length) return
+    if (!this.isPlay) return
+    this.play(this.rawCurrentTime())
+  }
+
+  /**
+   * Set global offset time(ms)
+   * @param globalOffset global offset time(ms)
+   */
+  setGlobalOffset(globalOffset: number) {
+    this.globalOffset = globalOffset
+    if (!this.lines.length) return
+    if (!this.isPlay) return
+    this.play(this.rawCurrentTime())
   }
 
   /**
@@ -229,8 +261,8 @@ export default class Lyric {
   setLyric(lyric: NonNullableOptions['lyric'], extendedLyrics: NonNullableOptions['extendedLyrics'] = []) {
     // console.log(extendedLyrics)
     if (this.isPlay) this.pause()
-    this.lyric = lyric
-    this.extendedLyrics = extendedLyrics
+    this.lyric = lyric.replace(/\xA0/g, ' ')
+    this.extendedLyrics = extendedLyrics.map((l) => l.replace(/\xA0/g, ' '))
     this._init()
   }
 }

@@ -28,13 +28,15 @@ export declare interface Options {
   /**
    * listening lyrics seting event
    * @param lines array of all lyric text
+   * @param offset offset time(ms)
+   * @param globalOffset global offset time(ms)
    */
-  onSetLyric?: (lines: Lines) => void
+  onSetLyric?: (lines: Lines, offset: number, globalOffset: number) => void
 
   /**
-   * offset time(ms), default is 150 ms
+   * global offset time(ms), default is 0 ms
    */
-  offset?: number
+  globalOffset?: number
 
   /**
    * playback rate, default is 1

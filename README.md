@@ -35,7 +35,7 @@ var lrc = new Lyric({
   onSetLyric: function (lines) { // listening lyrics seting event
     console.log(lines) // lines is array of all lyric text
   },
-  offset: 150, // offset time(ms), default is 150 ms
+  globalOffset: 0, // offset time(ms)
   playbackRate: 1, // playback rate, default is 1
   isRemoveBlankLine: true // is remove blank line, default is true
 })
@@ -47,6 +47,9 @@ lrc.play(30000) // play lyric, 30000 is curent play time, unit: ms
 lrc.pause() // pause lyric
 
 lrc.setPlaybackRate(1.2) // set playback rate to 1.2x
+
+lrc.setOffset(100) // set playback offset to 100
+lrc.setGlobalOffset(100) // set playback global offset to 100
 
 ```
 

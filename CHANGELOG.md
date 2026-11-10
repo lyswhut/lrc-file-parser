@@ -10,6 +10,7 @@ Change log format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 - Rename `offset` to `globalOffset`
 - Rename `setOffset` to `setGlobalOffset`
+- improve millisecond time parsing logic in lyric timing
 
 ## [2.4.2](https://github.com/lyswhut/lrc-file-parser/compare/v2.4.1...v2.4.2) - 2026-07-06
 
